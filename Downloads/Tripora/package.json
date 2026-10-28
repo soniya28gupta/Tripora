@@ -1,0 +1,21 @@
+{
+  "name": "tripora",
+  "version": "1.0.0",
+  "description": "Tripora — Immersive 3D Travel Platform",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "serve": "node server.js"
+  },
+  "keywords": [
+    "travel",
+    "booking",
+    "tripora",
+    "admin-dashboard",
+    "partner-portal"
+  ],
+  "author": "Tripora",
+  "license": "ISC"
+}
+

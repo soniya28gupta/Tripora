@@ -1,0 +1,3335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tripora — Immersive 3D Travel Platform</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Instrument+Sans:wght@400..700&display=swap">
+<style>
+:root{
+  --bg:#0b1126;--fg:#e8eefb;--mut:#9aa8c4;--pn:#141d3a;--pn-light:#1c274d;--ln:rgba(232,238,251,.17);
+  --am:#ffb020;--am-glow:rgba(255,176,32,.25);--ac:#8fa8ff;--suc:#22c55e;--dang:#ef4444;--wrn:#f59e0b;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 1.02rem/1.55 "Instrument Sans",system-ui,sans-serif;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+:is(a,button,input,select,textarea):focus-visible{outline:2px solid var(--am);outline-offset:3px}
+.sky{position:fixed;inset:0;z-index:0}
+.sk2{position:absolute;inset:0;transform-origin:50% 100%;background:linear-gradient(180deg,#070b19 0%,#19235f 40%,#403078 75%,#241538 100%)}
+.sp{position:fixed;top:0;left:0;right:0;height:3px;background:var(--am);transform:scaleX(0);transform-origin:left;z-index:60}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:calc(.9rem + env(safe-area-inset-top,0px)) 5vw .9rem;color:#fff;transition:background .3s,box-shadow .3s}
+nav.sc{background:var(--bg);box-shadow:0 1px 0 var(--ln)}
+.logo{display:flex;align-items:center;gap:.5rem;font:600 1.45rem Fraunces,serif;letter-spacing:-.02em;cursor:pointer}
+.lk{display:flex;gap:1.6rem;font-weight:500;align-items:center}
+.lk button{background:none;border:0;color:inherit;font:inherit;font-weight:500;cursor:pointer;padding:0;position:relative}
+.lk button::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:2px;background:var(--am);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.lk button:hover::after,.lk button:focus-visible::after,.lk [aria-current]::after{transform:scaleX(1)}
+.nav-badge{background:var(--am);color:#241800;font-size:.7rem;font-weight:700;padding:.15rem .45rem;border-radius:999px;margin-left:.3rem;vertical-align:middle}
+.nav-badge.ac{background:var(--ac);color:#0a122c}
+
+.nc{display:flex;align-items:center;gap:.6rem;margin-left:auto}
+.nc select{background:transparent;color:inherit;border:1px solid currentColor;border-radius:999px;padding:.3rem .5rem;font-size:.85rem;cursor:pointer}
+select option{background:var(--pn);color:var(--fg)}
+.ic{position:relative;background:none;border:1px solid currentColor;color:inherit;border-radius:999px;padding:.3rem .8rem;font:inherit;font-size:.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:background .2s,border-color .2s}
+.ic:hover{border-color:var(--am);color:var(--am)}
+.ic b{position:absolute;top:-6px;right:-6px;min-width:1.1rem;height:1.1rem;border-radius:999px;background:var(--am);color:#241800;font-size:.7rem;display:grid;place-items:center}
+.mb{display:none;background:none;border:1px solid currentColor;color:inherit;border-radius:999px;padding:.4rem 1rem;font:inherit;cursor:pointer}
+#userChip{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .75rem;border-radius:999px;background:var(--pn-light);border:1px solid var(--ln);font-size:.85rem}
+#userRoleBadge{font-size:.68rem;padding:.1rem .4rem;border-radius:999px;text-transform:uppercase;font-weight:700}
+.role-admin{background:rgba(255,176,32,.2);color:var(--am);border:1px solid var(--am)}
+.role-partner{background:rgba(143,168,255,.2);color:var(--ac);border:1px solid var(--ac)}
+.role-customer{background:rgba(34,197,94,.2);color:var(--suc);border:1px solid var(--suc)}
+
+main,.rest{position:relative;z-index:2}
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;gap:2rem;padding:7rem 5vw 2.2rem;color:#fff;position:relative}
+h1,h2,h3,h4{font-family:Fraunces,serif;font-weight:600;letter-spacing:-.03em;margin:0;line-height:1.1}
+h1{font-size:clamp(2.8rem,8.4vw,7.6rem)}
+.l{display:block;overflow:hidden;padding-bottom:.12em}.l>span{display:block}
+.hd p{max-width:32rem;margin:1.2rem 0 1.6rem;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.cta{display:flex;gap:.8rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.8rem 1.4rem;border-radius:999px;font:600 .95rem "Instrument Sans",sans-serif;border:1.5px solid currentColor;cursor:pointer;background:none;color:inherit;transition:transform .2s,background .25s,border-color .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.97)}
+.btn.p{background:var(--am);border-color:var(--am);color:#241800}.btn.p:hover{background:#ffc44d;border-color:#ffc44d}
+.btn.sec-btn{border-color:var(--ln);background:var(--pn-light);color:var(--fg)}
+.btn.sec-btn:hover{border-color:var(--ac);color:var(--ac)}
+.btn.dang{border-color:var(--dang);color:var(--dang)}.btn.dang:hover{background:var(--dang);color:#fff}
+.btn.sm{padding:.5rem .95rem;font-size:.85rem}
+.btn.xs{padding:.3rem .6rem;font-size:.78rem}
+
+.cue{position:absolute;right:5vw;bottom:13rem;width:1px;height:64px;background:rgba(255,255,255,.35);overflow:hidden}
+.cue::after{content:"";position:absolute;inset:0;background:#fff;animation:cue 2s cubic-bezier(.6,0,.2,1) infinite}
+@keyframes cue{0%{transform:translateY(-100%)}60%,100%{transform:translateY(100%)}}
+
+/* SEARCH PANEL */
+.panel{background:var(--pn);color:var(--fg);border-radius:1.4rem;padding:1.1rem 1.3rem 1.3rem;max-width:72rem;width:100%;box-shadow:0 24px 60px rgba(5,10,30,.65);backdrop-filter:blur(10px);border:1px solid var(--ln)}
+.tabs{display:inline-flex;position:relative;gap:.2rem;margin-bottom:1rem;border-bottom:1px solid var(--ln);max-width:100%;overflow-x:auto}
+.tabs button{background:none;border:0;color:var(--mut);font:600 .95rem "Instrument Sans",sans-serif;padding:.6rem 1.1rem;cursor:pointer;white-space:nowrap;transition:color .2s}
+.tabs [aria-selected=true]{color:var(--fg)}
+.ind{position:absolute;left:0;bottom:-1px;height:3px;background:var(--am);border-radius:3px;transition:transform .35s cubic-bezier(.2,.8,.2,1),width .35s}
+.fields{display:flex;flex-wrap:wrap;gap:.7rem;align-items:flex-end}
+label,.trv>span{display:grid;gap:.25rem;font-size:.8rem;font-weight:600;color:var(--mut);flex:1 1 11rem}
+.trv{flex:0 0 auto}.trv>span{flex:none}
+input,select,textarea{font:500 .95rem "Instrument Sans",sans-serif;color:var(--fg);background:var(--pn);border:1.5px solid var(--ln);border-radius:.8rem;padding:.7rem .85rem;width:100%;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 25%,transparent);outline:0}
+input[aria-invalid=true]{border-color:var(--dang)}
+.swap{width:2.4rem;height:2.4rem;flex:none;border-radius:50%;border:1.5px solid var(--ln);background:var(--pn);color:var(--fg);cursor:pointer;margin-bottom:.25rem;transition:transform .45s cubic-bezier(.2,.8,.2,1);display:grid;place-items:center}
+.swap:hover{border-color:var(--am);color:var(--am)}
+.trv>div{display:flex;align-items:center;gap:.6rem;border:1.5px solid var(--ln);border-radius:.8rem;padding:.35rem .5rem;height:2.75rem}
+.trv button{width:1.9rem;height:1.9rem;border-radius:50%;border:0;background:var(--ln);color:var(--fg);cursor:pointer;font-size:1.1rem;line-height:1}
+.trv output{min-width:1.2rem;text-align:center;font-weight:600;color:var(--fg)}
+[data-t=Hotels] .fr,[data-t=Hotels] .swap,[data-t=Holidays] .fr,[data-t=Holidays] .swap,[data-t=Activities] .fr,[data-t=Activities] .swap{display:none}
+.er{color:var(--dang);margin:.8rem 0 0;font-weight:600}
+.demo{margin:1rem 0 .4rem;font-size:.85rem;color:var(--mut)}
+.demo-tag{display:inline-block;padding:.2rem .5rem;background:rgba(255,176,32,.15);color:var(--am);border-radius:.4rem;font-size:.75rem;font-weight:600;margin-bottom:.5rem}
+.r{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.9rem 1rem;border:1px solid var(--ln);border-radius:.9rem;margin-top:.5rem;animation:up .5s both;animation-delay:calc(var(--i)*80ms);background:var(--pn)}
+.r span{display:block;font-size:.85rem;color:var(--mut)}
+.sk{height:3.4rem;border-radius:.9rem;margin-top:.5rem;background:linear-gradient(90deg,var(--ln),transparent,var(--ln));background-size:200% 100%;animation:sh 1s infinite}
+@keyframes up{from{opacity:0;transform:translateY(12px)}}@keyframes sh{to{background-position:-200% 0}}
+
+/* STORY */
+.story{position:relative;z-index:2;height:100svh;display:flex;align-items:flex-end;padding:0 5vw 5.5rem;color:#fff;background:linear-gradient(90deg,rgba(11,17,38,.85),transparent 65%)}
+.steps{display:grid;max-width:34rem}.step{grid-area:1/1}
+.step small{font-weight:600;color:var(--am)}
+.step h2{font-size:clamp(2.6rem,7vw,5.4rem);margin:.4rem 0 .8rem}.step p{margin:0 0 .6rem}.step .mt{color:#ffd9a0;font-weight:600}
+.prog{position:absolute;left:5vw;right:5vw;bottom:2.4rem;height:2px;background:rgba(255,255,255,.3)}
+.bar{display:block;height:100%;background:var(--am);transform:scaleX(0);transform-origin:left}
+
+/* DESTINATIONS & REST */
+.rest{background:var(--bg)}
+.sec{padding:clamp(4rem,10vw,8rem) 5vw}
+.sec h2{font-size:clamp(2.2rem,5.5vw,4.6rem)}
+.sub{color:var(--mut);max-width:34rem;margin:1rem 0 2rem}
+.rail{display:flex;gap:1.4rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:.5rem 5vw 1.5rem;margin:0 -5vw;scrollbar-width:thin}
+.card{flex:0 0 min(78vw,22rem);scroll-snap-align:start}
+.in{position:relative;border-radius:1.4rem;overflow:hidden;background:var(--pn);box-shadow:0 10px 30px rgba(5,10,30,.4);border:1px solid var(--ln);transition:box-shadow .3s}
+.card:hover .in{box-shadow:0 24px 50px rgba(5,10,30,.7)}
+.art{aspect-ratio:4/4.2;background:linear-gradient(165deg,var(--a),var(--b));position:relative;transition:transform .6s}
+.art::before{content:"";position:absolute;inset:0;background:rgba(10,12,50,.35);clip-path:polygon(0 100%,0 66%,20% 44%,36% 62%,58% 30%,80% 58%,100% 48%,100% 100%)}
+.art::after{content:"";position:absolute;width:26%;aspect-ratio:1;border-radius:50%;background:#fff6dc;top:14%;right:14%;opacity:.9}
+.card:hover .art{transform:scale(1.07)}
+.wl{position:absolute;top:.8rem;right:.8rem;z-index:2;width:2.6rem;height:2.6rem;border-radius:50%;background:rgba(20,29,58,.92);color:#ff5c7c;font-size:1.2rem;cursor:pointer;border:1px solid var(--ln);display:grid;place-items:center;transition:transform .2s}
+.wl.pop{animation:pop .4s}@keyframes pop{50%{transform:scale(1.3)}}
+.tx{padding:1.1rem 1.2rem 1.3rem;position:relative;background:var(--pn)}
+.tx small{color:var(--mut)}.tx h3{font-size:1.7rem;margin:.1rem 0 .4rem}.tx p{margin:0 0 .9rem;color:var(--mut);font-size:.95rem}
+.go2{background:none;border:0;color:var(--ac);font:600 .95rem "Instrument Sans",sans-serif;cursor:pointer;padding:0}
+.go2 span{display:inline-block;transition:transform .25s}.go2:hover span{transform:translateX(5px)}
+.stats{display:flex;flex-wrap:wrap;gap:2rem 4rem;margin:2.5rem 0 1rem}
+.stats b{display:block;font:600 clamp(2.4rem,6vw,4rem)/1 Fraunces,serif}.stats span{color:var(--mut)}
+footer{border-top:1px solid var(--ln);padding:2.5rem 5vw calc(2.5rem + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;gap:1rem 2rem;justify-content:space-between;color:var(--mut);font-size:.92rem}
+#tip{position:fixed;left:0;top:0;z-index:70;pointer-events:none;background:var(--am);color:#241800;font-weight:600;padding:.4rem .8rem;border-radius:.6rem;font-size:.85rem;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+#tip[hidden]{display:none}
+
+/* INAPP VIEWS */
+.inapp .sky{display:none}
+.inapp nav{background:var(--bg);box-shadow:0 1px 0 var(--ln)}
+#app{position:relative;z-index:2;background:var(--bg);min-height:100svh;padding-top:4.5rem}
+.wrap{max-width:76rem;margin:0 auto;padding:2rem 5vw 4rem}
+.wrap h1{font-size:clamp(2rem,5vw,3.4rem);margin-bottom:.8rem}.wrap h1:focus{outline:0}
+.k{margin:0 0 .4rem;font-weight:600;color:var(--ac)}
+.cols{display:grid;grid-template-columns:15rem 1fr;gap:2rem;align-items:start}
+.fil{background:var(--pn);border:1px solid var(--ln);border-radius:1.2rem;padding:1.2rem;display:grid;gap:1rem}
+.fil h3{font-size:1.1rem;display:flex;justify-content:space-between;align-items:center}
+.fil fieldset{border:0;padding:0;margin:0;display:grid;gap:.4rem}.fil legend{font-weight:600;margin-bottom:.4rem}
+.fil label{display:flex;gap:.5rem;align-items:center;font-size:.92rem;color:var(--fg)}
+.lnk{background:none;border:0;color:var(--ac);font:600 .85rem "Instrument Sans",sans-serif;cursor:pointer;padding:0}
+.list{display:grid;gap:.9rem}
+.row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem 1.5rem;background:var(--pn);border:1px solid var(--ln);border-radius:1.2rem;padding:1.1rem 1.3rem;animation:up .5s both;animation-delay:calc(var(--i)*60ms)}
+.row small,.hc small{display:block;color:var(--mut)}
+.rt{display:flex;gap:1.4rem;align-items:center;text-align:center}
+.pr{text-align:right;display:grid;gap:.4rem;justify-items:end}.pr b{font:600 1.5rem Fraunces,serif}
+.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr));gap:1.4rem}
+.hc{background:var(--pn);border:1px solid var(--ln);border-radius:1.4rem;overflow:hidden;display:flex;flex-direction:column;animation:up .5s both;animation-delay:calc(var(--i)*60ms)}
+.hc .art{aspect-ratio:16/10}.hc .bd{padding:1.1rem 1.2rem 1.3rem;display:grid;gap:.5rem;flex:1;align-content:start}
+.hc h3{font-size:1.35rem}.hc ul{margin:0;padding-left:1.1rem;color:var(--mut);font-size:.92rem}.hc p{margin:0;color:var(--mut)}
+.hc .bt{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding-top:.6rem}.hc .bt b{font:600 1.4rem Fraunces,serif}
+.empty{padding:3rem 1rem;text-align:center;background:var(--pn);border:1px solid var(--ln);border-radius:1.2rem;color:var(--mut);display:grid;gap:1rem;justify-items:center}
+.ck{max-width:44rem;margin:0 auto;background:var(--pn);border:1px solid var(--ln);border-radius:1.4rem;padding:1.6rem;display:grid;gap:1rem}
+.ck label,.ai label{display:grid;gap:.25rem;font-weight:600;font-size:.85rem;color:var(--mut)}
+.sum div{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0}
+.sum .t{border-top:1px solid var(--ln);font:600 1.3rem Fraunces,serif;margin-top:.4rem;padding-top:.7rem}
+.ai{display:flex;flex-wrap:wrap;gap:.8rem;align-items:flex-end;max-width:60rem}.ai label{flex:1 1 11rem}
+.day{background:var(--pn);border:1px solid var(--ln);border-radius:1rem;padding:.9rem 1.1rem;margin-top:.6rem}.day small{color:var(--ac);font-weight:600}.day p{margin:.2rem 0 0;color:var(--mut)}
+#aiout{max-width:60rem;margin-top:1.5rem}
+details{background:var(--pn);border:1px solid var(--ln);border-radius:1.0rem;padding:.9rem 1.1rem;margin-top:.6rem}summary{cursor:pointer;font-weight:600}details p{margin:.6rem 0 0;color:var(--mut)}
+.cc{background:var(--pn);border:1px solid var(--ln);border-radius:1.2rem;padding:1.4rem;display:grid;gap:.4rem;align-content:start}.cc h3{font-size:1.3rem}.cc p{margin:0;color:var(--mut)}
+
+/* TOAST & MODAL */
+#toast{position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:100;background:var(--fg);color:var(--bg);padding:.8rem 1.3rem;border-radius:.8rem;font-weight:600;transform:translateY(200%);transition:transform .3s;box-shadow:0 10px 30px rgba(0,0,0,.6);max-width:calc(100vw - 2rem)}
+#toast.on{transform:none}
+.modal{position:fixed;inset:0;z-index:90;background:rgba(5,10,30,.82);backdrop-filter:blur(8px);display:grid;place-items:center;padding:1rem;overflow-y:auto}
+.modal[hidden]{display:none}
+.md{background:var(--pn);color:var(--fg);border:1px solid var(--ln);border-radius:1.4rem;padding:1.8rem;max-width:32rem;width:100%;position:relative;display:grid;gap:1rem;box-shadow:0 25px 70px rgba(0,0,0,.7)}
+.md label{display:grid;gap:.3rem;font-weight:600;font-size:.85rem;color:var(--mut)}.md h3{font-size:1.6rem}
+.x{position:absolute;top:.8rem;right:1rem;background:none;border:0;color:var(--mut);font-size:1.6rem;cursor:pointer;line-height:1;transition:color .2s}
+.x:hover{color:var(--fg)}
+
+/* PORTAL SELECTOR CARDS */
+.portal-card{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;border:1.5px solid var(--ln);border-radius:1rem;background:var(--pn-light);cursor:pointer;text-align:left;transition:all .25s;color:inherit}
+.portal-card:hover{border-color:var(--am);transform:translateY(-2px);background:#212e5a}
+.portal-icon{font-size:1.6rem;width:2.8rem;height:2.8rem;border-radius:.7rem;display:grid;place-items:center;background:rgba(255,255,255,.06);flex:none}
+.portal-card strong{display:block;font-size:1.05rem;color:var(--fg)}
+.portal-card small{color:var(--mut);font-size:.85rem}
+.demo-pill{background:rgba(255,176,32,.12);border:1px dashed var(--am);padding:.4rem .8rem;border-radius:.6rem;font-size:.8rem;color:var(--am);cursor:pointer;text-align:center;transition:background .2s}
+.demo-pill:hover{background:rgba(255,176,32,.25)}
+
+/* DASHBOARD LAYOUT (ADMIN & PARTNER) */
+.dash-shell{display:grid;grid-template-columns:16.5rem 1fr;gap:2rem;align-items:start;margin-top:1rem}
+.dash-side{background:var(--pn);border:1px solid var(--ln);border-radius:1.3rem;padding:1.2rem;position:sticky;top:5.5rem;display:grid;gap:1.2rem}
+.dash-profile{display:flex;align-items:center;gap:.8rem;padding-bottom:1rem;border-bottom:1px solid var(--ln)}
+.dash-avatar{width:2.8rem;height:2.8rem;border-radius:50%;background:linear-gradient(135deg,var(--am),var(--ac));color:#141d3a;font-weight:700;display:grid;place-items:center;font-size:1.1rem;flex:none}
+.dash-nav{display:grid;gap:.25rem}
+.dash-nav button{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;background:none;border:0;color:var(--mut);font:600 .92rem "Instrument Sans",sans-serif;padding:.65rem .85rem;border-radius:.7rem;cursor:pointer;transition:all .2s}
+.dash-nav button:hover{background:var(--pn-light);color:var(--fg)}
+.dash-nav button.act{background:rgba(255,176,32,.15);color:var(--am);font-weight:700}
+.dash-nav button.act-ac{background:rgba(143,168,255,.15);color:var(--ac);font-weight:700}
+.dash-content{display:grid;gap:1.6rem}
+.dash-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:1rem}
+.dash-card{background:var(--pn);border:1px solid var(--ln);border-radius:1.1rem;padding:1.2rem;display:grid;gap:.3rem}
+.dash-card small{color:var(--mut);font-weight:600;font-size:.82rem}
+.dash-card b{font:600 2.1rem/1 Fraunces,serif;color:var(--fg);margin-top:.2rem}
+.dash-card .dc-sub{font-size:.78rem;color:var(--mut)}
+.dash-section{background:var(--pn);border:1px solid var(--ln);border-radius:1.3rem;padding:1.4rem;display:grid;gap:1rem}
+.dash-section-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem}
+.badge{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.75rem;font-weight:600;text-transform:capitalize}
+.badge.suc{background:rgba(34,197,94,.18);color:var(--suc);border:1px solid rgba(34,197,94,.4)}
+.badge.pen{background:rgba(245,158,11,.18);color:var(--wrn);border:1px solid rgba(245,158,11,.4)}
+.badge.can{background:rgba(239,68,68,.18);color:var(--dang);border:1px solid rgba(239,68,68,.4)}
+.badge.inf{background:rgba(143,168,255,.18);color:var(--ac);border:1px solid rgba(143,168,255,.4)}
+
+/* TABLES */
+.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.dash-table{width:100%;border-collapse:collapse;font-size:.9rem;text-align:left}
+table.dash-table th{background:rgba(255,255,255,.03);color:var(--mut);padding:.75rem 1rem;font-weight:600;border-bottom:1px solid var(--ln);white-space:nowrap}
+table.dash-table td{padding:.85rem 1rem;border-bottom:1px solid var(--ln);vertical-align:middle}
+table.dash-table tr:hover td{background:rgba(255,255,255,.02)}
+
+/* RESPONSIVE */
+@media(max-width:1180px){
+  .mb{display:block}
+  .lk{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:1rem;padding:1.2rem 5vw 1.6rem;margin:0;background:var(--bg);box-shadow:0 10px 30px rgba(0,0,0,.6);border-bottom:1px solid var(--ln)}
+  .lk.open{display:flex}
+  .lk button{text-align:left;width:100%}
+  .dash-shell{grid-template-columns:1fr}
+  .dash-side{position:static}
+}
+@media(max-width:800px){
+  .cols{grid-template-columns:1fr}
+  .pr{justify-items:start;text-align:left}
+  .cue{display:none}
+}
+
+/* ===================================================================
+   NOVA AI FLOATING WIDGET & CHAT PANEL STYLES
+   =================================================================== */
+.nova-trigger{
+  position:fixed;bottom:1.8rem;right:1.8rem;z-index:85;
+  display:inline-flex;align-items:center;gap:.65rem;
+  background:linear-gradient(135deg, #18234a 0%, #261942 100%);
+  color:#fff;border:1.5px solid rgba(143,168,255,.4);
+  border-radius:999px;padding:.55rem 1.15rem .55rem .6rem;
+  font:600 .92rem "Instrument Sans",sans-serif;cursor:pointer;
+  box-shadow:0 12px 35px rgba(5,10,30,.6),0 0 25px rgba(143,168,255,.25);
+  transition:all .28s cubic-bezier(.2,.8,.2,1);
+}
+.nova-trigger:hover{
+  transform:translateY(-3px) scale(1.03);
+  border-color:var(--am);
+  box-shadow:0 18px 45px rgba(5,10,30,.8),0 0 35px rgba(255,176,32,.35);
+}
+.nova-trigger:active{transform:scale(.97)}
+.nova-icon-wrap{
+  width:2.4rem;height:2.4rem;border-radius:50%;
+  background:linear-gradient(135deg, var(--am) 0%, var(--ac) 100%);
+  display:grid;place-items:center;color:#0b1126;font-size:1.15rem;
+  position:relative;box-shadow:0 0 15px rgba(255,176,32,.5);
+}
+.nova-pulse{
+  position:absolute;inset:-3px;border-radius:50%;
+  border:2px solid var(--am);
+  animation:novaPulse 2.2s infinite;opacity:0;pointer-events:none;
+}
+@keyframes novaPulse{0%{transform:scale(.9);opacity:.8}70%{transform:scale(1.4);opacity:0}100%{transform:scale(1.4);opacity:0}}
+.nova-trigger-badge{
+  background:var(--am);color:#241800;font-size:.65rem;font-weight:800;
+  padding:.15rem .45rem;border-radius:999px;letter-spacing:.02em;text-transform:uppercase;
+}
+
+/* NOVA CHAT PANEL */
+.nova-panel{
+  position:fixed;bottom:5.6rem;right:1.8rem;z-index:86;
+  width:415px;max-width:calc(100vw - 2rem);height:600px;max-height:calc(100vh - 7rem);
+  background:rgba(20,29,58,.95);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1.5px solid var(--ln);border-radius:1.4rem;
+  box-shadow:0 28px 75px rgba(5,10,30,.85), 0 0 30px rgba(143,168,255,.12);
+  display:flex;flex-direction:column;overflow:hidden;
+  transform-origin:bottom right;
+  transition:transform .3s cubic-bezier(.2,.8,.2,1), opacity .3s, visibility .3s;
+}
+.nova-panel.closed{
+  transform:scale(.85) translateY(20px);
+  opacity:0;pointer-events:none;visibility:hidden;
+}
+
+/* HEADER */
+.nova-head{
+  padding:.9rem 1.1rem;background:rgba(11,17,38,.85);border-bottom:1px solid var(--ln);
+  display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex:none;
+}
+.nova-head-info{display:flex;align-items:center;gap:.7rem}
+.nova-head-avatar{
+  width:2.5rem;height:2.5rem;border-radius:50%;
+  background:linear-gradient(135deg,var(--am),var(--ac));
+  color:#0b1126;font-weight:800;display:grid;place-items:center;font-size:1.1rem;
+  box-shadow:0 0 14px rgba(255,176,32,.35);position:relative;
+}
+.nova-online-dot{
+  position:absolute;bottom:0;right:0;width:.65rem;height:.65rem;border-radius:50%;
+  background:var(--suc);border:2px solid var(--pn);
+}
+.nova-head-text h4{font-size:1.05rem;margin:0;display:flex;align-items:center;gap:.4rem}
+.nova-head-text p{margin:0;font-size:.75rem;color:var(--mut)}
+
+/* ACTIONS */
+.nova-head-acts{display:flex;align-items:center;gap:.3rem}
+.nova-icon-btn{
+  background:none;border:0;color:var(--mut);width:2rem;height:2rem;border-radius:.5rem;
+  display:grid;place-items:center;cursor:pointer;font-size:1.05rem;transition:all .2s;
+}
+.nova-icon-btn:hover{background:var(--pn-light);color:var(--fg)}
+
+/* MESSAGES CONTAINER */
+.nova-body{
+  flex:1;overflow-y:auto;padding:1.1rem;display:flex;flex-direction:column;gap:.9rem;
+  scrollbar-width:thin;
+}
+.nova-msg{
+  display:flex;flex-direction:column;gap:.35rem;max-width:88%;
+  animation:novaMsgIn .3s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes novaMsgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.nova-msg.user{align-self:flex-end}
+.nova-msg.user .nova-bubble{
+  background:var(--am);color:#241800;border-radius:1.1rem 1.1rem .2rem 1.1rem;
+  font-weight:500;padding:.75rem .95rem;font-size:.9rem;line-height:1.45;
+}
+.nova-msg.assistant{align-self:flex-start}
+.nova-msg.assistant .nova-bubble{
+  background:var(--pn-light);color:var(--fg);border:1px solid var(--ln);
+  border-radius:1.1rem 1.1rem 1.1rem .2rem;padding:.85rem 1rem;font-size:.88rem;
+  line-height:1.55;display:grid;gap:.45rem;
+}
+.nova-bubble p{margin:0}
+.nova-bubble strong{color:#ffdca8}
+.nova-msg.user .nova-bubble strong{color:#000}
+
+/* CHIPS */
+.nova-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem}
+.nova-chip{
+  background:rgba(143,168,255,.12);border:1px solid rgba(143,168,255,.3);color:var(--fg);
+  padding:.35rem .7rem;border-radius:999px;font-size:.78rem;font-weight:600;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.nova-chip:hover{
+  background:var(--ac);color:#0a122c;border-color:var(--ac);
+  transform:translateY(-1px);
+}
+
+/* CARDS INSIDE CHAT */
+.nova-card{
+  background:var(--pn);border:1px solid var(--ln);border-radius:.9rem;
+  padding:.75rem .85rem;display:grid;gap:.35rem;margin-top:.4rem;
+}
+.nova-card-badge{
+  font-size:.68rem;font-weight:700;color:var(--am);text-transform:uppercase;
+  background:rgba(255,176,32,.12);padding:.1rem .4rem;border-radius:.4rem;display:inline-block;
+}
+.nova-card strong{font-size:.95rem;color:var(--fg)}
+.nova-card p{font-size:.8rem;color:var(--mut);margin:0}
+.nova-card-actions{display:flex;gap:.4rem;margin-top:.2rem;flex-wrap:wrap}
+
+/* TYPING INDICATOR */
+.nova-typing{
+  display:inline-flex;align-items:center;gap:.35rem;padding:.6rem .9rem;
+  background:var(--pn-light);border:1px solid var(--ln);border-radius:999px;
+  align-self:flex-start;font-size:.8rem;color:var(--mut);
+}
+.nova-dot{
+  width:.45rem;height:.45rem;border-radius:50%;background:var(--am);
+  animation:novaBounce 1.2s infinite ease-in-out;
+}
+.nova-dot:nth-child(2){animation-delay:.2s}
+.nova-dot:nth-child(3){animation-delay:.4s}
+@keyframes novaBounce{0%,80%,100%{transform:scale(0);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* FOOTER INPUT */
+.nova-foot{
+  padding:.8rem .9rem;background:rgba(11,17,38,.85);border-top:1px solid var(--ln);
+  display:flex;gap:.5rem;align-items:center;flex:none;
+}
+.nova-input{
+  flex:1;background:var(--pn);border:1.5px solid var(--ln);border-radius:.9rem;
+  padding:.65rem .85rem;font:500 .9rem "Instrument Sans",sans-serif;color:var(--fg);
+  resize:none;max-height:5rem;min-height:2.6rem;line-height:1.3;
+}
+.nova-input:focus{border-color:var(--ac);box-shadow:0 0 0 2px rgba(143,168,255,.25);outline:0}
+.nova-send{
+  width:2.6rem;height:2.6rem;border-radius:50%;border:0;
+  background:linear-gradient(135deg,var(--am),#ff9a20);color:#241800;
+  cursor:pointer;display:grid;place-items:center;flex:none;transition:all .2s;
+}
+.nova-send:hover{transform:scale(1.06)}
+.nova-send:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+@media(max-width:600px){
+  .nova-panel{
+    right:1rem;bottom:1rem;width:calc(100vw - 2rem);height:calc(100vh - 2rem);
+    max-height:none;border-radius:1.1rem;
+  }
+}
+
+/* ===================================================================
+   HERO 3D-STYLE AIRPLANE, FLIGHT TRAIL & SKY ELEMENTS
+   =================================================================== */
+.hero-airplane-stage {
+  position: absolute;
+  top: 5.5rem;
+  right: 4vw;
+  width: min(46vw, 540px);
+  height: 400px;
+  pointer-events: none;
+  z-index: 4;
+  overflow: visible;
+}
+
+.hero-flight-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Airplane Bobbing & Floating */
+.airplane-bob {
+  transform-origin: 0px 3px;
+  animation: planeFloatIdle 4.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes planeFloatIdle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(-1.6deg);
+  }
+}
+
+/* Radar Pulse on Destination Pin */
+.pin-pulse-ring {
+  transform-origin: 0px 0px;
+  animation: pinPulse 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  opacity: 0.8;
+}
+
+@keyframes pinPulse {
+  0% {
+    r: 5px;
+    opacity: 0.9;
+  }
+  70% {
+    r: 22px;
+    opacity: 0;
+  }
+  100% {
+    r: 22px;
+    opacity: 0;
+  }
+}
+
+/* Floating Clouds Animations */
+.cloud-drift-1 {
+  animation: cloudDrift1 7s ease-in-out infinite;
+}
+.cloud-drift-2 {
+  animation: cloudDrift2 6s ease-in-out infinite;
+}
+.cloud-drift-3 {
+  animation: cloudDrift3 8s ease-in-out infinite;
+}
+
+@keyframes cloudDrift1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(9px, -6px); }
+}
+
+@keyframes cloudDrift2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-8px, 5px); }
+}
+
+@keyframes cloudDrift3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, 7px); }
+}
+
+/* Twinkling Sparkles */
+.sparkle-star {
+  animation: sparkleTwinkle 2.8s ease-in-out infinite;
+}
+.sparkle-star.s1 { animation-delay: 0s; }
+.sparkle-star.s2 { animation-delay: 0.7s; }
+.sparkle-star.s3 { animation-delay: 1.4s; }
+.sparkle-star.s4 { animation-delay: 2.1s; }
+
+@keyframes sparkleTwinkle {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.75);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(15deg);
+  }
+}
+
+/* Responsive adjustments */
+@media(max-width: 1080px) {
+  .hero-airplane-stage {
+    width: min(48vw, 420px);
+    height: 320px;
+    top: 5rem;
+    right: 2vw;
+  }
+}
+
+@media(max-width: 768px) {
+  .hero-airplane-stage {
+    width: 290px;
+    height: 220px;
+    top: 4.5rem;
+    right: 1vw;
+    opacity: 0.85;
+  }
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"><div class="sk2"></div></div>
+<i class="sp" aria-hidden="true"></i>
+<div id="tip" hidden></div>
+
+<!-- NAVIGATION -->
+<nav aria-label="Main">
+  <a class="logo" href="#top" aria-label="Tripora home">
+    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M2 14 22 4l-6 17-5-7z" fill="currentColor"/></svg>
+    Tripora
+  </a>
+  <button class="mb" aria-expanded="false" aria-controls="lk" aria-label="Toggle Menu">Menu</button>
+  <div class="lk" id="lk">
+    <button data-v="flights">Flights</button>
+    <button data-v="hotels">Hotels</button>
+    <button data-v="holidays">Holidays</button>
+    <button data-v="buses">Buses</button>
+    <button data-v="trains">Trains</button>
+    <button data-v="cabs">Cabs</button>
+    <button data-v="activities">Activities</button>
+    <button data-v="trips">My trips</button>
+    <button data-v="support">Support</button>
+  </div>
+  <div class="nc">
+    <select id="cur" aria-label="Currency">
+      <option value="USD">USD ($)</option>
+      <option value="EUR">EUR (€)</option>
+      <option value="INR">INR (₹)</option>
+      <option value="GBP">GBP (£)</option>
+    </select>
+    <button class="ic" data-v="wishlist" aria-label="Wishlist">&#9829;<b id="wc" hidden>0</b></button>
+    <div id="authNavWrap" style="display:inline-flex;align-items:center;gap:.5rem">
+      <button class="ic" id="lg">Log in</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME / MARKETING PAGE -->
+<div id="home">
+<main>
+<header class="hero" id="top">
+  <div class="hd">
+    <h1><span class="l"><span>Find your</span></span><span class="l"><span>next horizon.</span></span></h1>
+    <p class="fi">Flights, hotels and holiday packages for places worth the journey. Search below or follow the route.</p>
+    <div class="fi cta">
+      <a class="btn p" href="#destinations">Explore destinations</a>
+      <a class="btn" href="#search">Search trips</a>
+    </div>
+  </div>
+  <span class="cue" aria-hidden="true"></span>
+
+  <!-- CUTE 3D-STYLE AIRPLANE FLIGHT STAGE -->
+  <div class="hero-airplane-stage" id="heroPlaneStage" aria-hidden="true">
+    <svg class="hero-flight-svg" id="flightTrailSvg" viewBox="0 0 520 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Flight Trail Gradient -->
+        <linearGradient id="trailGrad" x1="20" y1="320" x2="470" y2="55" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#8fa8ff" stop-opacity="0" />
+          <stop offset="25%" stop-color="#a78bfa" stop-opacity="0.35" />
+          <stop offset="60%" stop-color="#c7d2fe" stop-opacity="0.75" />
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.95" />
+        </linearGradient>
+
+        <!-- Flight Trail Outer Glow -->
+        <linearGradient id="trailGlow" x1="20" y1="320" x2="470" y2="55" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#8fa8ff" stop-opacity="0" />
+          <stop offset="50%" stop-color="#a78bfa" stop-opacity="0.3" />
+          <stop offset="100%" stop-color="#c7d2fe" stop-opacity="0.5" />
+        </linearGradient>
+
+        <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+
+        <!-- Plane Drop Shadow -->
+        <filter id="airplaneShadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="2" dy="8" stdDeviation="6" flood-color="#050a1e" flood-opacity="0.55" />
+          <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#8fa8ff" flood-opacity="0.3" />
+        </filter>
+
+        <!-- Airplane Linear Gradients for 3D Shading -->
+        <linearGradient id="planeFuselageGrad" x1="0%" y1="30%" x2="100%" y2="70%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="45%" stop-color="#f8fafc" />
+          <stop offset="80%" stop-color="#e2e8f0" />
+          <stop offset="100%" stop-color="#cbd5e1" />
+        </linearGradient>
+
+        <linearGradient id="planeWingTopGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="60%" stop-color="#f1f5f9" />
+          <stop offset="100%" stop-color="#cbd5e1" />
+        </linearGradient>
+
+        <linearGradient id="planeWingLowerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="40%" stop-color="#e2e8f0" />
+          <stop offset="100%" stop-color="#94a3b8" />
+        </linearGradient>
+
+        <linearGradient id="cockpitGlass" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0f172a" />
+          <stop offset="50%" stop-color="#1e293b" />
+          <stop offset="100%" stop-color="#38bdf8" />
+        </linearGradient>
+
+        <linearGradient id="pinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffb020" />
+          <stop offset="100%" stop-color="#f59e0b" />
+        </linearGradient>
+
+        <linearGradient id="cloudGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22" />
+          <stop offset="100%" stop-color="#c7d2fe" stop-opacity="0.08" />
+        </linearGradient>
+
+        <linearGradient id="cloudGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="#d8b4fe" stop-opacity="0.07" />
+        </linearGradient>
+      </defs>
+
+      <!-- FLOATING SOFT CLOUDS -->
+      <!-- Cloud 1 (Bottom Left, gentle drift) -->
+      <g class="cloud-drift-1 hero-cloud-1">
+        <path d="M 90 280 A 18 18 0 0 1 122 268 A 24 24 0 0 1 162 272 A 16 16 0 0 1 182 292 A 12 12 0 0 1 172 305 L 95 305 A 14 14 0 0 1 90 280 Z" fill="url(#cloudGrad1)" />
+      </g>
+
+      <!-- Cloud 2 (Upper Right, near destination) -->
+      <g class="cloud-drift-2 hero-cloud-2">
+        <path d="M 390 125 A 14 14 0 0 1 415 116 A 18 18 0 0 1 445 120 A 12 12 0 0 1 460 135 L 392 135 A 10 10 0 0 1 390 125 Z" fill="url(#cloudGrad2)" />
+      </g>
+
+      <!-- Cloud 3 (Mid altitude subtle puff) -->
+      <g class="cloud-drift-3 hero-cloud-3">
+        <path d="M 220 220 A 12 12 0 0 1 240 212 A 16 16 0 0 1 268 216 A 10 10 0 0 1 280 230 L 222 230 A 9 9 0 0 1 220 220 Z" fill="url(#cloudGrad1)" />
+      </g>
+
+      <!-- GLOWING CURVED FLIGHT PATH -->
+      <!-- Glow Underlay -->
+      <path id="flightTrailGlow" d="M 25 320 C 120 300 210 250 310 180 S 430 95 470 55" stroke="url(#trailGlow)" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.45" filter="url(#softGlow)" />
+      
+      <!-- Crisp Dashed Route Trail -->
+      <path id="flightTrailActive" d="M 25 320 C 120 300 210 250 310 180 S 430 95 470 55" stroke="url(#trailGrad)" stroke-width="2.5" stroke-dasharray="6 8" stroke-linecap="round" fill="none" />
+
+      <!-- SUBTLE TWINKLING SPARKLES -->
+      <g class="sparkle-star s1" transform="translate(450, 30)">
+        <path d="M0 -7 Q0 0 7 0 Q0 0 0 7 Q0 0 -7 0 Q0 0 0 -7 Z" fill="#ffffff" opacity="0.9" filter="drop-shadow(0 0 4px #ffb020)" />
+      </g>
+      <g class="sparkle-star s2" transform="translate(285, 145)">
+        <path d="M0 -5 Q0 0 5 0 Q0 0 0 5 Q0 0 -5 0 Q0 0 0 -5 Z" fill="#ffdca8" opacity="0.8" />
+      </g>
+      <g class="sparkle-star s3" transform="translate(150, 235)">
+        <path d="M0 -6 Q0 0 6 0 Q0 0 0 6 Q0 0 -6 0 Q0 0 0 -6 Z" fill="#c7d2fe" opacity="0.8" />
+      </g>
+      <g class="sparkle-star s4" transform="translate(365, 80)">
+        <path d="M0 -4 Q0 0 4 0 Q0 0 0 4 Q0 0 -4 0 Q0 0 0 -4 Z" fill="#ffffff" opacity="0.85" />
+      </g>
+
+      <!-- GLOWING DESTINATION PIN -->
+      <g id="destinationPinGroup" transform="translate(470, 55)">
+        <!-- Radar Pulse Rings -->
+        <circle cx="0" cy="0" r="14" fill="none" stroke="#ffb020" stroke-width="1.5" class="pin-pulse-ring" />
+        <circle cx="0" cy="0" r="3" fill="#ffb020" opacity="0.8" />
+        <!-- Teardrop Map Pin -->
+        <g transform="translate(0, -18)">
+          <path d="M 0 -10 C -7 -10 -11 -6 -11 0 C -11 7 0 18 0 18 C 0 18 11 7 11 0 C 11 -6 7 -10 0 -10 Z" fill="url(#pinGrad)" stroke="#ffffff" stroke-width="1.8" filter="drop-shadow(0 4px 10px rgba(0,0,0,0.5))" />
+          <circle cx="0" cy="-1" r="3.5" fill="#ffffff" />
+        </g>
+      </g>
+
+      <!-- 3D-STYLE AIRPLANE MODEL CONTAINER -->
+      <g id="heroAirplane" transform="translate(310, 180) rotate(-22)">
+        <g class="airplane-bob" id="airplaneModel" filter="url(#airplaneShadow)">
+          <!-- Contrail Jet Exhaust Particles -->
+          <ellipse cx="-28" cy="1" rx="8" ry="3" fill="#8fa8ff" opacity="0.5" filter="url(#softGlow)" />
+          <circle cx="-38" cy="2" r="2.5" fill="#ffffff" opacity="0.6" />
+          <circle cx="-48" cy="3" r="1.5" fill="#a78bfa" opacity="0.4" />
+
+          <!-- Starboard Wing (Upper Wing in 3D Perspective) -->
+          <path d="M -2 -2 L -18 -26 C -19 -28 -17 -29 -15 -27 L -3 -16 L 16 -1 Z" fill="url(#planeWingTopGrad)" stroke="#cbd5e1" stroke-width="0.75" />
+          <!-- Starboard Winglet & Green Beacon -->
+          <path d="M -18 -26 L -20 -31 L -16 -28 Z" fill="#38bdf8" />
+          <circle cx="-19" cy="-29" r="1.8" fill="#34d399" filter="drop-shadow(0 0 3px #34d399)" />
+          <!-- Starboard Engine Pod -->
+          <rect x="-8" y="-9" width="13" height="5" rx="2.5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="0.5" />
+          <ellipse cx="5" cy="-6.5" rx="1.5" ry="2" fill="#0f172a" />
+
+          <!-- Main Airplane Fuselage -->
+          <path d="M -34 0 C -34 -4 8 -5 32 -2 C 40 -1 46 1 48 3 C 46 5 40 7 32 8 C 8 11 -34 6 -34 0 Z" fill="url(#planeFuselageGrad)" stroke="#cbd5e1" stroke-width="0.75" />
+          <!-- Fuselage Top Aerodynamic Highlight -->
+          <path d="M -26 -1 C -10 -3 15 -3 34 0 C 30 1 -10 0 -26 -1 Z" fill="#ffffff" opacity="0.8" />
+
+          <!-- Vertical Tail Fin & Tripora Gold Stripe -->
+          <path d="M -32 0 L -42 -17 C -43 -19 -41 -20 -39 -18 L -23 -1 Z" fill="url(#planeWingTopGrad)" stroke="#cbd5e1" stroke-width="0.75" />
+          <path d="M -38 -12 L -41 -17 L -39 -18 L -36 -13 Z" fill="#ffb020" />
+          <!-- Horizontal Stabilizer -->
+          <path d="M -30 2 L -38 10 C -39 11 -40 10 -39 9 L -32 1 Z" fill="url(#planeWingLowerGrad)" stroke="#94a3b8" stroke-width="0.5" />
+
+          <!-- Port Wing (Lower / Closer Wing in 3D Perspective) -->
+          <path d="M -4 3 L -24 30 C -25 32 -22 33 -20 31 L -8 18 L 14 4 Z" fill="url(#planeWingLowerGrad)" stroke="#94a3b8" stroke-width="0.75" />
+          <!-- Port Winglet & Red Beacon -->
+          <path d="M -24 30 L -27 35 L -22 32 Z" fill="#ffb020" />
+          <circle cx="-25" cy="33" r="1.8" fill="#ef4444" filter="drop-shadow(0 0 3px #ef4444)" />
+          <!-- Port Engine Pod -->
+          <rect x="-10" y="8" width="14" height="6" rx="3" fill="#cbd5e1" stroke="#64748b" stroke-width="0.5" />
+          <ellipse cx="4" cy="11" rx="1.5" ry="2.5" fill="#0f172a" />
+
+          <!-- Cockpit Windshield (Glossy Tinted Glass) -->
+          <path d="M 33 0 C 37 1 42 2 44 3 C 42 4 37 5 33 6 C 35 4 35 2 33 0 Z" fill="url(#cockpitGlass)" />
+          <!-- Cockpit Specular Reflection -->
+          <path d="M 36 1 Q 40 2.5 43 3" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round" opacity="0.8" />
+
+          <!-- Cabin Windows (Warm Glowing Dots) -->
+          <circle cx="24" cy="2" r="1.2" fill="#fbbf24" opacity="0.9" />
+          <circle cx="18" cy="2" r="1.2" fill="#fbbf24" opacity="0.9" />
+          <circle cx="12" cy="2" r="1.2" fill="#fbbf24" opacity="0.9" />
+          <circle cx="6" cy="2" r="1.2" fill="#fbbf24" opacity="0.9" />
+          <circle cx="0" cy="2" r="1.2" fill="#fbbf24" opacity="0.9" />
+        </g>
+      </g>
+    </svg>
+  </div>
+  <form class="panel" id="search" data-t="Flights" novalidate>
+    <div class="tabs" role="tablist" aria-label="Trip type">
+      <button type="button" role="tab" aria-selected="true">Flights</button>
+      <button type="button" role="tab" aria-selected="false">Hotels</button>
+      <button type="button" role="tab" aria-selected="false">Holidays</button>
+      <button type="button" role="tab" aria-selected="false">Buses</button>
+      <button type="button" role="tab" aria-selected="false">Trains</button>
+      <button type="button" role="tab" aria-selected="false">Cabs</button>
+      <button type="button" role="tab" aria-selected="false">Activities</button>
+      <i class="ind"></i>
+    </div>
+    <div class="fields">
+      <label class="fr">From<input id="from" value="Delhi" autocomplete="off"></label>
+      <button type="button" class="swap" aria-label="Swap origin and destination">⇄</button>
+      <label>To<input id="to" placeholder="City or destination" autocomplete="off"></label>
+      <label>Date<input type="date" id="dt"></label>
+      <div class="trv">
+        <span>Travellers</span>
+        <div>
+          <button type="button" aria-label="Fewer travellers" data-d="-1">−</button>
+          <output id="n" aria-live="polite">1</output>
+          <button type="button" aria-label="More travellers" data-d="1">+</button>
+        </div>
+      </div>
+      <button class="btn p" type="submit">Search</button>
+    </div>
+    <div id="res" aria-live="polite"></div>
+  </form>
+</header>
+
+<section class="story" id="story" aria-label="Destination route">
+  <div class="steps" id="steps"></div>
+  <div class="prog" aria-hidden="true"><i class="bar"></i></div>
+</section>
+</main>
+
+<div class="rest">
+<section class="sec" id="destinations">
+  <h2><span class="l"><span>Trips worth</span></span><span class="l"><span>the journey</span></span></h2>
+  <p class="sub">Swipe through curated favourites. Save the ones you love, or start a search. Prices are sample figures.</p>
+  <div class="rail" id="rail" tabindex="0" aria-label="Destination cards"></div>
+  <p class="sub" id="wlc" aria-live="polite" style="margin-bottom:0"></p>
+</section>
+
+<section class="sec" id="planner">
+  <h2><span class="l"><span>Build a trip</span></span><span class="l"><span>in seconds</span></span></h2>
+  <p class="sub">Pick a place, length and style. This demo builds a day-by-day outline from verified templates.</p>
+  <form class="ai" id="ai">
+    <label>Destination<input name="d" value="Japan"></label>
+    <label>Days<select name="n"><option>3</option><option selected>5</option><option>7</option></select></label>
+    <label>Budget<select name="b"><option value="800">Budget</option><option value="1500" selected>Moderate</option><option value="3500">Luxury</option></select></label>
+    <label>Style<select name="s"><option value="c">Culture and food</option><option value="a">Adventure</option><option value="r">Relaxation</option></select></label>
+    <button class="btn p" type="submit">Build itinerary</button>
+  </form>
+  <div id="aiout" aria-live="polite"></div>
+</section>
+
+<section class="sec" id="why">
+  <h2><span class="l"><span>Why travellers</span></span><span class="l"><span>choose Tripora</span></span></h2>
+  <div class="g3" style="margin-top:2rem">
+    <div class="cc"><h3>A secure checkout flow</h3><p>Review, confirm and track every booking in one unified dashboard.</p></div>
+    <div class="cc"><h3>Support when you need it</h3><p>Reach our 24/7 concierge by phone, email or instant chat ticket.</p></div>
+    <div class="cc"><h3>Compare before you book</h3><p>Filter flights, stays, activities and packages side by side.</p></div>
+  </div>
+</section>
+
+<section class="sec" id="plan">
+  <h2><span class="l"><span>Plan with</span></span><span class="l"><span>fewer tabs</span></span></h2>
+  <p class="sub">Search, save and compare in one place, then book when you are ready.</p>
+  <div class="stats">
+    <div><b data-c="120">120+</b><span>Destinations</span></div>
+    <div><b data-c="48000">48,000+</b><span>Trips planned</span></div>
+    <div><b data-c="35">35+</b><span>Countries</span></div>
+  </div>
+  <p class="sub" style="margin:0">Verified sample figures for demonstration.</p>
+</section>
+
+<footer>
+  <span>© 2026 Tripora Inc. Demo build with active Admin & Partner portals.</span>
+  <span><a href="#search">Search</a> &nbsp; <a href="#destinations">Trips</a> &nbsp; <a href="#top">Back to top</a></span>
+</footer>
+</div>
+</div>
+
+<!-- INAPP CONTAINER FOR FLIGHTS, HOTELS, CHECKOUT, DASHBOARDS -->
+<section id="app" hidden></section>
+<div id="toast" role="status"></div>
+
+<!-- AUTHENTICATION & PORTAL SELECTOR MODAL -->
+<div class="modal" id="auth" hidden>
+  <div class="md" role="dialog" aria-modal="true" aria-labelledby="at">
+    <button class="x" id="closeAuth" aria-label="Close modal">&times;</button>
+    <h3 id="at">Welcome to Tripora</h3>
+    <p class="sub" style="margin:0">Select your account portal or sign in to continue.</p>
+    
+    <!-- Portal Selection Step -->
+    <div id="portalSelector" style="display:grid;gap:.75rem;margin-top:.4rem">
+      <button class="portal-card" id="btnCust" type="button">
+        <div class="portal-icon">🧳</div>
+        <div>
+          <strong>Customer Sign In</strong>
+          <small>Book trips, view itineraries, manage wishlist</small>
+        </div>
+      </button>
+
+      <button class="portal-card" id="btnAdmin" type="button" style="border-color:rgba(255,176,32,.4)">
+        <div class="portal-icon" style="background:rgba(255,176,32,.1);color:var(--am)">🔐</div>
+        <div>
+          <strong style="color:var(--am)">Administrator Portal</strong>
+          <small>Platform metrics, bookings, partner approvals, settings</small>
+        </div>
+      </button>
+
+      <button class="portal-card" id="btnPartner" type="button" style="border-color:rgba(143,168,255,.4)">
+        <div class="portal-icon" style="background:rgba(143,168,255,.1);color:var(--ac)">🤝</div>
+        <div>
+          <strong style="color:var(--ac)">Partner / Vendor Portal</strong>
+          <small>Hotels, tour guides, inventory, rates & earnings</small>
+        </div>
+      </button>
+      
+      <div style="margin-top:.6rem;padding-top:.8rem;border-top:1px solid var(--ln);display:grid;gap:.4rem">
+        <small style="color:var(--mut);font-weight:600">Quick Test Credentials (1-Click Fill):</small>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem">
+          <button type="button" class="demo-pill" id="fillCustDemo">Customer</button>
+          <button type="button" class="demo-pill" id="fillAdminDemo" style="color:var(--am);border-color:var(--am)">Admin</button>
+          <button type="button" class="demo-pill" id="fillPartnerDemo" style="color:var(--ac);border-color:var(--ac)">Partner</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Form Step -->
+    <form id="af" style="display:none;grid-template-columns:1fr;gap:.9rem;margin-top:.4rem" novalidate>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <h4 id="formTitle" style="margin:0;font-size:1.15rem;color:var(--am)">Sign In</h4>
+        <button type="button" class="lnk" id="btnQuickFillCurrent">⚡ Fill Demo</button>
+      </div>
+      <p id="formDesc" style="margin:0;font-size:.85rem;color:var(--mut)"></p>
+      
+      <label>Email address
+        <input type="email" id="lEmail" required autocomplete="email" placeholder="name@example.com">
+      </label>
+      
+      <label>Password
+        <div style="position:relative">
+          <input type="password" id="lPass" required minlength="4" autocomplete="current-password" placeholder="••••••••" style="padding-right:2.5rem">
+          <button type="button" id="togglePass" style="position:absolute;right:.6rem;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--mut);cursor:pointer;font-size:1rem;padding:.2rem" aria-label="Toggle password visibility">👁</button>
+        </div>
+      </label>
+      
+      <div id="authError" class="er" style="display:none;font-size:.88rem;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);padding:.6rem .8rem;border-radius:.6rem"></div>
+      
+      <div style="display:flex;gap:.6rem;margin-top:.4rem">
+        <button class="btn sec-btn" type="button" id="backAuth" style="flex:1">Back</button>
+        <button class="btn p" type="submit" id="submitAuth" style="flex:1">
+          <span id="authBtnText">Sign In</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CONFIRMATION MODAL FOR DESTRUCTIVE ACTIONS -->
+<div class="modal" id="confirmModal" hidden>
+  <div class="md" role="dialog" aria-modal="true" style="max-width:26rem">
+    <h3 id="cmTitle" style="font-size:1.4rem">Confirm Action</h3>
+    <p id="cmDesc" style="margin:0;color:var(--mut);font-size:.92rem"></p>
+    <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.6rem">
+      <button class="btn sec-btn sm" type="button" id="cmCancel">Cancel</button>
+      <button class="btn dang sm" type="button" id="cmConfirm">Proceed</button>
+    </div>
+  </div>
+</div>
+
+<!-- FLOATING NOVA AI TRIGGER BUTTON -->
+<button class="nova-trigger" id="novaTrigger" aria-label="Open Nova AI Travel Assistant" aria-expanded="false">
+  <div class="nova-icon-wrap">
+    <span aria-hidden="true">✦</span>
+    <div class="nova-pulse"></div>
+  </div>
+  <span>Ask Nova AI</span>
+  <span class="nova-trigger-badge">Assistant</span>
+</button>
+
+<!-- NOVA AI CHAT PANEL -->
+<div class="nova-panel closed" id="novaPanel" role="dialog" aria-label="Nova AI Travel Assistant" aria-modal="false">
+  <div class="nova-head">
+    <div class="nova-head-info">
+      <div class="nova-head-avatar">
+        ✦
+        <div class="nova-online-dot" title="Nova is online and ready"></div>
+      </div>
+      <div class="nova-head-text">
+        <h4>Nova AI <span style="font-size:.68rem;padding:.1rem .45rem;border-radius:999px;background:rgba(34,197,94,.18);color:var(--suc);border:1px solid rgba(34,197,94,.4)">Online</span></h4>
+        <p>Your Smart Companion for Every Journey.</p>
+      </div>
+    </div>
+    <div class="nova-head-acts">
+      <button class="nova-icon-btn" id="novaResetChat" title="Start new conversation" aria-label="Start new conversation">🔄</button>
+      <button class="nova-icon-btn" id="novaCloseChat" title="Close chat panel" aria-label="Close chat panel">&times;</button>
+    </div>
+  </div>
+
+  <div class="nova-body" id="novaMessages" aria-live="polite">
+    <!-- Messages populated dynamically -->
+  </div>
+
+  <form class="nova-foot" id="novaForm">
+    <textarea class="nova-input" id="novaInput" rows="1" placeholder="Ask Nova about destinations, itineraries, budgets..." required></textarea>
+    <button class="nova-send" type="submit" id="novaSendBtn" aria-label="Send message" disabled>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+    </button>
+  </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ANIM = !RM && window.gsap && window.ScrollTrigger && window.Lenis;
+
+/* ---------- DESTINATIONS DATA ---------- */
+const DEST = [
+  {n:'Bali', c:'Indonesia', d:'Rice terraces, temple coasts and slow mornings by the sea.', s:'Apr–Oct', p:'₹32,000', a:'#ff9a6b', b:'#7a3f8f'},
+  {n:'Kyoto', c:'Japan', d:'Lantern-lit lanes, tea houses and maple valleys in bloom.', s:'Mar–May, Oct–Nov', p:'₹68,000', a:'#f7b2c4', b:'#3b2f6b'},
+  {n:'Santorini', c:'Greece', d:'White villages on volcanic cliffs above a deep blue caldera.', s:'May–Oct', p:'₹74,000', a:'#7fc4ff', b:'#1f3a8a'},
+  {n:'Zermatt', c:'Switzerland', d:'Alpine trails and Matterhorn views from a car-free village.', s:'Jun–Sep, Dec–Mar', p:'₹95,000', a:'#bfe3ff', b:'#27406b'}
+];
+
+let L = null;
+const goTo = s => {
+  const e = $(s);
+  if (!e) return;
+  L ? L.scrollTo(e, {offset:-70}) : e.scrollIntoView({behavior: RM ? 'auto' : 'smooth'});
+};
+
+/* ---------- Content & Wishlist ---------- */
+let wl = [];
+try { wl = JSON.parse(localStorage.getItem('trp.wl') || '[]'); } catch(e) {}
+const wlc = () => {
+  const el = $('#wlc');
+  if (el) el.textContent = wl.length ? wl.length + ' saved on this device. Saved trips are kept in this browser only.' : '';
+};
+
+const renderHomeRail = () => {
+  $('#rail').innerHTML = DEST.map((d, i) => `
+    <article class="card" id="d${i}">
+      <div class="in">
+        <div class="art" style="--a:${d.a};--b:${d.b}"></div>
+        <button class="wl" data-n="${d.n}" aria-pressed="${wl.includes(d.n)}" aria-label="Save ${d.n} to wishlist">${wl.includes(d.n)?'♥':'♡'}</button>
+        <div class="tx"><small>${d.c}</small><h3>${d.n}</h3><p>${d.d}</p><button class="go2" data-to="${d.n}">Search trips to ${d.n} <span aria-hidden="true">→</span></button></div>
+      </div>
+    </article>`).join('');
+
+  $('#steps').innerHTML = DEST.map((d, i) => `
+    <div class="step"><small>Stop ${i+1} of 4</small><h2>${d.n}</h2><p>${d.d}</p><p class="mt">Best in ${d.s} · from ${d.p} (sample price)</p></div>`).join('');
+  wlc();
+};
+renderHomeRail();
+
+$('#rail').addEventListener('click', e => {
+  const w = e.target.closest('.wl'), g = e.target.closest('.go2');
+  if (w) {
+    const n = w.dataset.n, on = !wl.includes(n);
+    wl = on ? [...wl, n] : wl.filter(x => x !== n);
+    try { localStorage.setItem('trp.wl', JSON.stringify(wl)); } catch(x) {}
+    w.setAttribute('aria-pressed', on);
+    w.textContent = on ? '♥' : '♡';
+    w.classList.remove('pop'); void w.offsetWidth; w.classList.add('pop');
+    wlc();
+    const wc = $('#wc');
+    if (wc) { wc.hidden = !wl.length; wc.textContent = wl.length; }
+  }
+  if (g) {
+    $('#to').value = g.dataset.to;
+    goTo('#search');
+    setTimeout(() => $('#to').focus({preventScroll: true}), 600);
+  }
+});
+
+/* ---------- SEARCH WIDGET ---------- */
+const f = $('#search'), res = $('#res'), to = $('#to'), from = $('#from'), nEl = $('#n'), ind = $('.ind'), tabs = $$('.tabs [role=tab]');
+let tab = 'Flights';
+const place = () => {
+  const b = tabs.find(t => t.getAttribute('aria-selected') === 'true');
+  if (!b || !ind) return;
+  ind.style.width = b.offsetWidth + 'px';
+  ind.style.transform = `translateX(${b.offsetLeft}px)`;
+};
+tabs.forEach(b => b.onclick = () => {
+  tabs.forEach(t => t.setAttribute('aria-selected', t === b));
+  tab = b.textContent;
+  f.dataset.t = tab;
+  res.innerHTML = '';
+  place();
+});
+addEventListener('resize', place);
+place();
+
+let rot = 0;
+$('.swap').onclick = e => {
+  [from.value, to.value] = [to.value, from.value];
+  rot += 180;
+  e.currentTarget.style.transform = `rotate(${rot}deg)`;
+};
+
+$$('.trv button').forEach(b => b.onclick = () => {
+  nEl.textContent = Math.min(9, Math.max(1, +nEl.textContent + +b.dataset.d));
+});
+if ($('#dt')) $('#dt').min = new Date().toISOString().slice(0, 10);
+
+const mb = $('.mb'), lk = $('#lk');
+mb.onclick = () => {
+  const o = lk.classList.toggle('open');
+  mb.setAttribute('aria-expanded', o);
+};
+
+$$('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+  const h = a.getAttribute('href');
+  if (h.length > 1 && $(h)) {
+    e.preventDefault();
+    lk.classList.remove('open');
+    mb.setAttribute('aria-expanded', 'false');
+    goTo(h);
+  }
+}));
+
+const nav = $('nav');
+addEventListener('scroll', () => nav.classList.toggle('sc', scrollY > 40), {passive: true});
+
+/* ---------- GSAP + ScrollTrigger + Lenis ---------- */
+if (ANIM) {
+  gsap.registerPlugin(ScrollTrigger);
+  L = new Lenis({lerp: .1});
+  L.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => L.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+
+  gsap.set('.hero .l>span', {yPercent: 110});
+  gsap.set('.fi', {opacity: 0, y: 22});
+
+  gsap.timeline({defaults: {ease: 'expo.out'}})
+    .to('.hero .l>span', {yPercent: 0, duration: 1.2, stagger: .12}, .2)
+    .to('.fi', {opacity: 1, y: 0, duration: .9, stagger: .1}, .7);
+
+  gsap.to('.sp', {scaleX: 1, ease: 'none', scrollTrigger: {start: 0, end: 'max', scrub: .2}});
+
+  gsap.set('.step:not(:first-child)', {opacity: 0, y: 40});
+  const st = gsap.timeline({defaults: {ease: 'none'}, scrollTrigger: {trigger: '.story', start: 'top top', end: '+=2400', pin: true, scrub: .6}});
+  st.to('.bar', {scaleX: 1, duration: 4}, 0);
+  [[.55, 0, .75, 1], [1.85, 1, 2.05, 2], [3.2, 2, 3.4, 3]].forEach(([o, a, i, b]) =>
+    st.to(`.step:nth-child(${a + 1})`, {opacity: 0, y: -40, duration: .3}, o).to(`.step:nth-child(${b + 1})`, {opacity: 1, y: 0, duration: .3}, i));
+
+  $$('.sec .l>span').forEach(s => gsap.from(s, {yPercent: 110, duration: 1.2, ease: 'expo.out', scrollTrigger: {trigger: s, start: 'top 90%'}}));
+  gsap.from('.card', {y: 60, opacity: 0, duration: 1.2, ease: 'expo.out', stagger: .12, scrollTrigger: {trigger: '#rail', start: 'top 85%'}});
+  
+  $$('[data-c]').forEach(e => {
+    const o = {v: 0}, v = +e.dataset.c;
+    gsap.to(o, {v, duration: 1.8, ease: 'power2.out', onUpdate: () => e.textContent = Math.round(o.v).toLocaleString('en-IN') + '+', scrollTrigger: {trigger: e, start: 'top 92%', once: true}});
+  });
+
+  /* ---------- CUTE 3D AIRPLANE SCROLL & PARALLAX ANIMATION ---------- */
+  const planeWrap = $('#heroAirplane');
+  const planeStage = $('#heroPlaneStage');
+  const flightTrail = $('#flightTrailActive');
+
+  if (planeWrap && flightTrail) {
+    // Initial entrance animation matching hero title reveal
+    gsap.from(planeWrap, {
+      opacity: 0,
+      x: 180,
+      y: 240,
+      rotation: -35,
+      scale: 0.75,
+      duration: 1.8,
+      ease: 'expo.out',
+      delay: 0.4
+    });
+
+    gsap.from('#flightTrailSvg', {
+      opacity: 0,
+      duration: 1.8,
+      ease: 'power2.out',
+      delay: 0.25
+    });
+
+    // Scroll along the curved route
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom 35%',
+        scrub: 0.8
+      }
+    })
+    .to(planeWrap, {
+      x: 440,
+      y: 75,
+      rotation: -14,
+      scale: 1.08,
+      ease: 'power1.inOut'
+    }, 0)
+    .to('.hero-cloud-1', { y: -45, x: 15, ease: 'none' }, 0)
+    .to('.hero-cloud-2', { y: -65, x: -10, ease: 'none' }, 0)
+    .to('.hero-cloud-3', { y: -30, x: 8, ease: 'none' }, 0)
+    .to(planeStage, {
+      opacity: 0,
+      ease: 'power2.in',
+      duration: 0.35
+    }, 0.75);
+
+    // Subtle interactive mouse parallax (desktop fine pointers only)
+    if (window.matchMedia('(pointer: fine)').matches && !RM) {
+      const heroHeader = $('#top');
+      const planeModel = $('#airplaneModel');
+      if (heroHeader && planeModel) {
+        heroHeader.addEventListener('mousemove', e => {
+          const rect = heroHeader.getBoundingClientRect();
+          const normX = ((e.clientX - rect.left) / rect.width) - 0.5;
+          const normY = ((e.clientY - rect.top) / rect.height) - 0.5;
+
+          gsap.to(planeModel, {
+            x: normX * 24,
+            y: normY * 18,
+            rotation: normX * 8,
+            duration: 1.1,
+            ease: 'power2.out',
+            overwrite: 'auto'
+          });
+        });
+
+        heroHeader.addEventListener('mouseleave', () => {
+          gsap.to(planeModel, {
+            x: 0,
+            y: 0,
+            rotation: 0,
+            duration: 1.4,
+            ease: 'power2.out',
+            overwrite: 'auto'
+          });
+        });
+      }
+    }
+  }
+}
+
+/* ==========================================================
+   ROBUST APPLICATION LAYER: AUTH, DASHBOARDS & SERVICES
+   ========================================================== */
+(() => {
+  // Currency Conversion Tables
+  const CUR = [['USD', '$', 1], ['EUR', '€', .92], ['INR', '₹', 83.2], ['GBP', '£', .79]];
+  let cu = CUR[/-IN\b/.test(navigator.language) ? 2 : 0];
+  const fm = n => cu[1] + Number(n).toLocaleString(cu[0] === 'INR' ? 'en-IN' : 'en-US');
+  const fmt = u => fm(Math.round(u * cu[2]));
+
+  const ls = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch(e) { return d; } };
+  const sv = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} };
+  const esc = s => String(s).replace(/"/g, '&quot;');
+
+  const toast = m => {
+    const t = $('#toast');
+    t.textContent = m;
+    t.classList.add('on');
+    clearTimeout(toast.h);
+    toast.h = setTimeout(() => t.classList.remove('on'), 3400);
+  };
+
+  /* ---------- DEMO USERS ACCOUNTS DATABASE ---------- */
+  const USERS_KEY = 'trp.users_db';
+  const DEFAULT_USERS = [
+    { id: 'usr-admin-1', email: 'admin@tripora.com', pass: 'admin123', name: 'Alexander Vance', role: 'admin', title: 'Platform Director', createdAt: '2025-01-10' },
+    { id: 'usr-partner-1', email: 'vendor@tripora.com', pass: 'vendor123', name: 'Elena Rostova', role: 'partner', company: 'Grand Luxe Hospitality Ltd.', phone: '+1 (800) 449-LUXE', status: 'verified', createdAt: '2025-02-15' },
+    { id: 'usr-cust-1', email: 'alex@example.com', pass: 'secret123', name: 'Alex Morgan', role: 'customer', phone: '+1 (555) 392-1084', createdAt: '2025-03-01' }
+  ];
+  let usersDb = ls(USERS_KEY, DEFAULT_USERS);
+
+  // Active Authenticated Session
+  let usr = ls('trp.user_session', null);
+
+  /* ---------- EXPANDED DESTINATIONS & SERVICES ---------- */
+  const MORE = [
+    {n: 'Amalfi Coast', c: 'Italy', d: 'Pastel cliffside towns and lemon-scented terraces above the sea.', s: 'May–Sep', u: 1100, a: '#ffd08a', b: '#c2477b'},
+    {n: 'Banff', c: 'Canada', d: 'Turquoise lakes and Rocky Mountain peaks in every direction.', s: 'Jun–Sep', u: 750, a: '#9ee0d0', b: '#1d4a6b'}
+  ];
+  [540, 920, 850, 1350].forEach((u, i) => DEST[i].u = u);
+  let ALL_DEST = ls('trp.all_dest', [...DEST, ...MORE]);
+  ALL_DEST.forEach(d => Object.defineProperty(d, 'p', {get: () => fmt(d.u), configurable: true}));
+
+  // Re-populate more rail cards if not present
+  $('#rail').insertAdjacentHTML('beforeend', MORE.map((d, i) => `
+    <article class="card" id="d${i+4}">
+      <div class="in">
+        <div class="art" style="--a:${d.a};--b:${d.b}"></div>
+        <button class="wl" data-n="${d.n}" aria-pressed="${wl.includes(d.n)}" aria-label="Save ${d.n} to wishlist">${wl.includes(d.n)?'♥':'♡'}</button>
+        <div class="tx"><small>${d.c}</small><h3>${d.n}</h3><p>${d.d}</p><button class="go2" data-to="${d.n}">Search trips to ${d.n} <span aria-hidden="true">→</span></button></div>
+      </div>
+    </article>`).join(''));
+
+  /* ---------- SERVICE INVENTORIES ---------- */
+  const FL = [
+    ['Emirates', 'EK-202', 'JFK', 'DXB', '08:30 AM', '06:45 PM', '12h 15m', 'Non-stop', 780],
+    ['Singapore Airlines', 'SQ-026', 'JFK', 'SIN', '10:15 AM', '05:30 PM+1', '18h 45m', '1 stop', 940],
+    ['Lufthansa', 'LH-401', 'JFK', 'FRA', '04:00 PM', '05:55 AM+1', '7h 55m', 'Non-stop', 560],
+    ['Qatar Airways', 'QR-704', 'JFK', 'DOH', '09:15 PM', '04:30 PM+1', '12h 15m', 'Non-stop', 820]
+  ];
+
+  const INITIAL_HOTELS = [
+    { id: 'h-1', title: 'Grand Luxe Oia Suites', loc: 'Santorini, Greece', rate: 320, rating: 4.9, tags: 'Infinity pool · Sea view · Spa', desc: 'Perched on the caldera cliffs with sunset views and private plunge pools.', a: '#ffb27a', b: '#5b3f9a', partner: 'vendor@tripora.com', status: 'active' },
+    { id: 'h-2', title: 'Roku Zen Resort & Spa', loc: 'Kyoto, Japan', rate: 410, rating: 4.8, tags: 'Onsen · Traditional garden · Fine dining', desc: 'Japanese architectural elegance among tranquil bamboo groves.', a: '#f7b2c4', b: '#2f3e6b', partner: 'vendor@tripora.com', status: 'active' },
+    { id: 'h-3', title: 'The Azure Amalfi Hotel', loc: 'Amalfi, Italy', rate: 290, rating: 4.7, tags: 'Beachfront · Valet parking · Cocktail bar', desc: 'Direct access to the sea, with private sunlit terraces.', a: '#7fc4ff', b: '#1f3a8a', partner: 'partner2@example.com', status: 'active' }
+  ];
+  let hotelListings = ls('trp.hotels', INITIAL_HOTELS);
+
+  const HP = [
+    ['Santorini & Mykonos Dream', '7 days, 6 nights', 1450, 'Romantic', ['Sunset catamaran cruise in Oia', 'Guided walks through ancient towns', 'Cliffside boutique hotels'], '#ffb27a', '#5b3f9a'],
+    ['Alpine Majesty & Swiss Rail', '8 days, 7 nights', 1890, 'Adventure', ['Glacier Express panoramic ride', 'Zermatt Matterhorn viewing platform', 'Alpine chalets'], '#bfe3ff', '#27406b'],
+    ['Kyoto Heritage & Tokyo Lights', '9 days, 8 nights', 2100, 'Cultural', ['Tea ceremony with a Zen master', 'Bullet train experiences', 'Tokyo skyline dinner cruise'], '#f7b2c4', '#3b2f6b']
+  ];
+  const BT = {
+    buses: [['Express Coachways', 'New York → Washington DC', '08:00 AM – 01:30 PM', 45], ['Silverliner Transit', 'Boston → New York', '10:30 AM – 04:15 PM', 38]],
+    trains: [['EuroRail Express', 'London → Paris', '07:15 AM – 10:45 AM', 120], ['Alpine Bullet', 'Zurich → Milan', '09:00 AM – 01:20 PM', 145]]
+  };
+  const CB = [['Tripora Executive Sedan', '3 passengers, 2 bags', 65], ['Luxury SUV Transfer', '6 passengers, 5 bags', 110]];
+  const AC = [['Sunset Catamaran Cruise with Dinner', 'Santorini', 130, 4.9], ['Tea Ceremony and Zen Garden Tour', 'Kyoto', 85, 4.8]];
+
+  /* ---------- PARTNER APPLICATIONS & BOOKINGS ---------- */
+  const DEFAULT_APPLICATIONS = [
+    { id: 'pa-101', company: 'Alpine Stays Chalets', contact: 'Marc Weber', email: 'marc@alpinestays.ch', type: 'Hotels & Chalets', location: 'Zermatt, Switzerland', status: 'pending', date: '2026-04-12' },
+    { id: 'pa-102', company: 'Tokyo Horizon Tours', contact: 'Kenji Sato', email: 'kenji@tokyohorizon.jp', type: 'Tours & Activities', location: 'Tokyo & Kyoto', status: 'pending', date: '2026-04-18' }
+  ];
+  let partnerApps = ls('trp.partner_apps', DEFAULT_APPLICATIONS);
+
+  const DEFAULT_TRIPS = [
+    { id: 'TR-892410', title: 'Santorini & Mykonos Dream', type: 'Holiday package', status: 'Confirmed (demo)', amt: '$1,595', date: '2026-04-20', customerEmail: 'alex@example.com', customerName: 'Alex Morgan', partnerEmail: 'vendor@tripora.com' },
+    { id: 'TR-571243', title: 'Grand Luxe Oia Suites, Santorini', type: 'Hotel', status: 'Confirmed (demo)', amt: '$352', date: '2026-04-18', customerEmail: 'alex@example.com', customerName: 'Alex Morgan', partnerEmail: 'vendor@tripora.com' }
+  ];
+  let TR = ls('trp.trips', DEFAULT_TRIPS);
+
+  const DEFAULT_SUPPORT_TICKETS = [
+    { id: 'TCK-201', customer: 'Alex Morgan', email: 'alex@example.com', subject: 'Inquiry regarding baggage allowance', priority: 'Low', status: 'Resolved', date: '2026-04-22' },
+    { id: 'TCK-204', customer: 'Sarah Jenkins', email: 'sarah@example.com', subject: 'Change of travel dates for Kyoto package', priority: 'High', status: 'Open', date: '2026-04-27' }
+  ];
+  let supportTickets = ls('trp.tickets', DEFAULT_SUPPORT_TICKETS);
+
+  let platformSettings = ls('trp.settings', {
+    commission: 12,
+    maintenance: false,
+    demoModeTag: true,
+    conciergePhone: '+1 (800) 555-TRIP',
+    supportEmail: 'support@tripora.com'
+  });
+
+  /* ---------- APP NAVIGATION & ROUTING STATE ---------- */
+  let Q = {from:'', to:'', dt:'', n:1}, fa = 'All', fs = 'price', cv = 'home', CK = null;
+  let adminActiveTab = 'overview', partnerActiveTab = 'overview';
+  const app = $('#app'), home = $('#home'), FOOT = $('footer').outerHTML, wc = $('#wc');
+
+  const badge = () => { if (wc) { wc.hidden = !wl.length; wc.textContent = wl.length; } };
+  const hearts = () => $$('.wl').forEach(w => {
+    const on = wl.includes(w.dataset.n);
+    w.setAttribute('aria-pressed', on);
+    w.textContent = on ? '♥' : '♡';
+  });
+  const sync = () => $$('.step .mt').forEach((e, i) => {
+    if (DEST[i]) e.textContent = `Best in ${DEST[i].s} · from ${DEST[i].p} (sample price)`;
+  });
+
+  const tog = n => {
+    const on = !wl.includes(n);
+    wl = on ? [...wl, n] : wl.filter(x => x !== n);
+    sv('trp.wl', wl);
+    badge();
+    toast(on ? 'Added to wishlist' : 'Removed from wishlist');
+  };
+
+  const hd = (k, t, s = '') => `<p class="k">${k}</p><h1>${t}</h1>${s?`<p class="sub">${s}</p>`:''}`;
+  const ND = '<p class="demo"><span class="demo-tag">Sample Data</span> Listings and prices for demonstration purposes.</p>';
+  const qs = () => [Q.from && Q.to ? `${Q.from} → ${Q.to}` : Q.to, Q.dt, `${Q.n} traveller${Q.n>1?'s':''}`].filter(Boolean).join(' · ');
+  const B = (t, ti, u) => `<button class="btn p sm" data-buy="${esc(t+'|'+ti+'|'+u)}">Select</button>`;
+  const art = (a, b) => `<div class="art" style="--a:${a};--b:${b}"></div>`;
+  const dm = s => { const m = s.match(/(\d+)h (\d+)m/); return m ? (m[1]*60 + +m[2]) : 0; };
+
+  /* ---------- CONFIRMATION MODAL HELPER ---------- */
+  let pendingConfirmAction = null;
+  const showConfirm = (title, message, onConfirm) => {
+    const cm = $('#confirmModal');
+    $('#cmTitle').textContent = title;
+    $('#cmDesc').textContent = message;
+    pendingConfirmAction = onConfirm;
+    cm.hidden = false;
+  };
+  $('#cmCancel').onclick = () => { $('#confirmModal').hidden = true; pendingConfirmAction = null; };
+  $('#cmConfirm').onclick = () => {
+    if (pendingConfirmAction) pendingConfirmAction();
+    $('#confirmModal').hidden = true;
+    pendingConfirmAction = null;
+  };
+
+  /* ---------- VIEWS GENERATOR ---------- */
+  const V = {
+    flights(){
+      const l = FL.filter(f => fa === 'All' || f[0] === fa).sort((a, b) => fs === 'price' ? a[8] - b[8] : dm(a[6]) - dm(b[6]));
+      return hd('Flight search results', 'Available flights', qs()) + ND + `
+      <div class="cols">
+        <aside class="fil">
+          <h3>Filters <button class="lnk" data-fa="All">Reset</button></h3>
+          <fieldset><legend>Airlines</legend>${['All', ...FL.map(f => f[0])].map(a => `<label><input type="radio" name="al" data-fa="${a}" ${a==fa?'checked':''}>${a}</label>`).join('')}</fieldset>
+          <label>Sort by<select id="fs"><option value="price" ${fs=='price'?'selected':''}>Lowest price</option><option value="dur" ${fs=='dur'?'selected':''}>Shortest duration</option></select></label>
+        </aside>
+        <div class="list">${l.map((f, i) => `
+          <div class="row" style="--i:${i}">
+            <div><strong>${f[0]}</strong><small>${f[1]} · Economy</small></div>
+            <div class="rt"><div><b>${f[4]}</b><small>${f[2]}</small></div><div><small>${f[6]}</small><small>${f[7]}</small></div><div><b>${f[5]}</b><small>${f[3]}</small></div></div>
+            <div class="pr"><small>Total, ${Q.n} traveller${Q.n>1?'s':''}</small><b>${fmt(f[8]*Q.n)}</b>${B('Flight', `${f[0]} ${f[1]} (${f[2]} to ${f[3]})`, f[8]*Q.n)}</div>
+          </div>`).join('') || '<p class="empty">No flights match these filters.</p>'}
+        </div>
+      </div>`;
+    },
+    hotels(){
+      const activeHotels = hotelListings.filter(h => h.status !== 'inactive');
+      return hd('Hotel and resort search', 'Stays worth the trip', qs()) + ND + `
+      <div class="g3">${activeHotels.map((h, i) => `
+        <article class="hc" style="--i:${i}">
+          ${art(h.a || '#ffb27a', h.b || '#5b3f9a')}
+          <div class="bd">
+            <small>${h.loc} · ★ ${h.rating}</small>
+            <h3>${h.title}</h3>
+            <p>${h.desc}</p>
+            <small>${h.tags}</small>
+            <div class="bt">
+              <div><b>${fmt(h.rate)}</b><small>per night</small></div>
+              ${B('Hotel', h.title+', '+h.loc, h.rate)}
+            </div>
+          </div>
+        </article>`).join('')}
+      </div>`;
+    },
+    holidays(){
+      return hd('Holiday packages', 'Curated trips, start to finish', qs()) + ND + `
+      <div class="g3">${HP.map((p, i) => `
+        <article class="hc" style="--i:${i}">
+          ${art(p[5], p[6])}
+          <div class="bd">
+            <small>${p[3]} · ${p[1]}</small>
+            <h3>${p[0]}</h3>
+            <ul>${p[4].map(x => `<li>${x}</li>`).join('')}</ul>
+            <div class="bt">
+              <div><b>${fmt(p[2])}</b><small>per person</small></div>
+              ${B('Holiday package', p[0], p[2]*Q.n)}
+            </div>
+          </div>
+        </article>`).join('')}
+      </div>`;
+    },
+    buses(){
+      return hd('Bus tickets', 'Book comfortable coach travel', qs()) + ND + `
+      <div class="list">${BT.buses.map((x,i)=>`
+        <div class="row" style="--i:${i}">
+          <div><strong>${x[0]}</strong><small>${x[1]} · ${x[2]}</small></div>
+          <div class="pr"><b>${fmt(x[3]*Q.n)}</b>${B('Bus', `${x[0]} (${x[1]})`, x[3]*Q.n)}</div>
+        </div>`).join('')}
+      </div>`;
+    },
+    trains(){
+      return hd('Train journeys', 'High-speed rail journeys across scenic routes', qs()) + ND + `
+      <div class="list">${BT.trains.map((x,i)=>`
+        <div class="row" style="--i:${i}">
+          <div><strong>${x[0]}</strong><small>${x[1]} · ${x[2]}</small></div>
+          <div class="pr"><b>${fmt(x[3]*Q.n)}</b>${B('Train', `${x[0]} (${x[1]})`, x[3]*Q.n)}</div>
+        </div>`).join('')}
+      </div>`;
+    },
+    cabs(){
+      return hd('Airport transfers and cabs', 'Reliable chauffeur services') + ND + `
+      <div class="g3">${CB.map((c, i) => `
+        <div class="cc" style="--i:${i}">
+          <h3>${c[0]}</h3>
+          <p>${c[1]}</p>
+          <b style="font:600 1.5rem Fraunces,serif">${fmt(c[2])}</b>
+          ${B('Cab transfer', c[0], c[2])}
+        </div>`).join('')}
+      </div>`;
+    },
+    activities(){
+      return hd('Sightseeing and activities', 'Unforgettable local experiences', qs()) + ND + `
+      <div class="g3">${AC.map((a, i) => `
+        <div class="cc" style="--i:${i}">
+          <small>${a[1]} · ★ ${a[3]}</small>
+          <h3>${a[0]}</h3>
+          <b style="font:600 1.5rem Fraunces,serif">${fmt(a[2])}</b>
+          ${B('Activity', a[0], a[2]*Q.n)}
+        </div>`).join('')}
+      </div>`;
+    },
+    trips(){
+      const userTrips = usr && usr.role === 'customer'
+        ? TR.filter(t => !t.customerEmail || t.customerEmail === usr.email)
+        : TR;
+
+      return hd('My trips and bookings', 'Your active travel itineraries') + 
+      (userTrips.length ? `
+        <div class="list">${userTrips.map((t, i) => `
+          <div class="row" style="--i:${i}">
+            <div>
+              <small>${t.id} · ${t.type}</small>
+              <strong>${t.title}</strong>
+              <small>Booked ${t.date} ${t.customerName ? `· Traveller: ${t.customerName}` : ''}</small>
+            </div>
+            <div class="pr">
+              <span class="badge ${t.status.includes('Confirmed') ? 'suc' : 'pen'}">${t.status}</span>
+              <b>${t.amt}</b>
+            </div>
+          </div>`).join('')}
+        </div>
+        <p class="demo"><span class="demo-tag">Notice</span> Demo bookings are stored in this browser session.</p>` : `
+        <div class="empty">
+          <p>You have no bookings recorded yet.</p>
+          <button class="btn p" data-v="home">Explore destinations</button>
+        </div>`);
+    },
+    wishlist(){
+      const l = ALL_DEST.filter(d => wl.includes(d.n));
+      return hd('Saved favourites', 'Your travel wishlist') + 
+      (l.length ? `
+        <div class="g3">${l.map((d, i) => `
+          <article class="hc" style="--i:${i}">
+            ${art(d.a, d.b)}
+            <div class="bd">
+              <small>${d.c}</small>
+              <h3>${d.n}</h3>
+              <p>${d.d}</p>
+              <div class="bt">
+                <div><b>${fmt(d.u)}</b><small>from, sample</small></div>
+                <div>
+                  <button class="lnk" data-wl="${d.n}">Remove</button>
+                  ${B('Holiday package', d.n+' package', d.u)}
+                </div>
+              </div>
+            </div>
+          </article>`).join('')}
+        </div>
+        <p class="demo">Wishlist is saved locally in this browser.</p>` : `
+        <div class="empty">
+          <p>Your wishlist is empty. Tap the heart on destinations from the homepage to save them.</p>
+          <button class="btn p" data-v="home">Browse destinations</button>
+        </div>`);
+    },
+    support(){
+      const C = (t, s, v) => `<div class="cc"><h3>${t}</h3><p>${s}</p><strong>${v}</strong></div>`;
+      return hd('Help and support', 'How can we help you?') + `
+      <div class="g3">
+        ${C('Call concierge', 'Available 24/7 for urgent trip assistance.', platformSettings.conciergePhone)}
+        ${C('Email support', 'Our concierge desk replies within 2 hours.', platformSettings.supportEmail)}
+        <div class="cc">
+          <h3>Live chat</h3>
+          <p>Instant chat with Tripora travel concierges.</p>
+          <div><button class="btn sm sec-btn" data-chat>Start chat ticket</button></div>
+        </div>
+      </div>
+      <h2 style="margin:2.5rem 0 .5rem;font-size:1.8rem">Common questions</h2>
+      ${[
+        ['Are these live prices?', 'No. This build uses sample listings and rates for demonstration.'],
+        ['Is any real payment processed?', 'No. The checkout uses a demo flow with simulated confirmation references.'],
+        ['How are Admin & Partner portals protected?', 'Authentication verifies user role credentials before granting access. Unauthorized attempts are rejected.'],
+        ['Where is my booking data stored?', 'Locally in browser storage for demonstration, ready for REST or GraphQL backend integration.']
+      ].map(q => `<details><summary>${q[0]}</summary><p>${q[1]}</p></details>`).join('')}`;
+    },
+
+    /* ==========================================================
+       DEDICATED ADMIN PANEL & CONTROL CENTER
+       ========================================================== */
+    adminPanel(){
+      if (!usr || usr.role !== 'admin') {
+        return hd('Access Denied', 'Administrator authorization required') + `
+        <div class="empty">
+          <p style="color:var(--dang);font-size:1.1rem">⚠️ You must be signed in with an Administrator account to view this portal.</p>
+          <button class="btn p" data-v="home">Return Home</button>
+        </div>`;
+      }
+
+      const totalBookingsCount = TR.length + 1426;
+      const totalRev = Math.round(TR.reduce((acc, t) => {
+        const num = +String(t.amt).replace(/[^0-9]/g, '') || 500;
+        return acc + num;
+      }, 342000) * cu[2]);
+
+      return `
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem">
+        <div>
+          <span class="role-admin badge" style="margin-bottom:.4rem">Platform Administration</span>
+          <h1>Admin Control Center</h1>
+          <p class="sub" style="margin-bottom:0">Signed in as <strong>${usr.name}</strong> (${usr.email}) · <span class="demo-tag">Demo Environment</span></p>
+        </div>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn sm sec-btn" data-admin-action="refresh">⟳ Refresh Metrics</button>
+          <button class="btn sm dang" data-admin-action="logout">Log out</button>
+        </div>
+      </div>
+
+      <div class="dash-shell">
+        <aside class="dash-side">
+          <div class="dash-profile">
+            <div class="dash-avatar">AV</div>
+            <div>
+              <strong style="display:block;font-size:.95rem">${usr.name}</strong>
+              <small style="color:var(--am);font-weight:600">Administrator</small>
+            </div>
+          </div>
+          <nav class="dash-nav" id="adminNav">
+            <button class="${adminActiveTab==='overview'?'act':''}" data-tab="overview">📊 Overview</button>
+            <button class="${adminActiveTab==='bookings'?'act':''}" data-tab="bookings">📑 Booking Management</button>
+            <button class="${adminActiveTab==='users'?'act':''}" data-tab="users">👥 User Management</button>
+            <button class="${adminActiveTab==='partners'?'act':''}" data-tab="partners">🤝 Partner Management ${partnerApps.filter(a=>a.status==='pending').length?`<span class="badge pen">${partnerApps.filter(a=>a.status==='pending').length}</span>`:''}</button>
+            <button class="${adminActiveTab==='destinations'?'act':''}" data-tab="destinations">📍 Destination Management</button>
+            <button class="${adminActiveTab==='services'?'act':''}" data-tab="services">🏨 Travel Services</button>
+            <button class="${adminActiveTab==='support'?'act':''}" data-tab="support">🎧 Support Requests ${supportTickets.filter(s=>s.status==='Open').length?`<span class="badge pen">${supportTickets.filter(s=>s.status==='Open').length}</span>`:''}</button>
+            <button class="${adminActiveTab==='settings'?'act':''}" data-tab="settings">⚙️ Platform Settings</button>
+            <button data-tab="logout" style="color:var(--dang);margin-top:.8rem;border-top:1px solid var(--ln);padding-top:.8rem">🚪 Exit to Website</button>
+          </nav>
+        </aside>
+
+        <section class="dash-content" id="adminTabContent">
+          ${V._renderAdminTab(adminActiveTab, totalBookingsCount, totalRev)}
+        </section>
+      </div>`;
+    },
+
+    _renderAdminTab(tabName, totalBookingsCount, totalRev){
+      if (tabName === 'overview') {
+        return `
+        <div class="dash-metrics">
+          <div class="dash-card">
+            <small>Total Bookings</small>
+            <b>${totalBookingsCount.toLocaleString()}</b>
+            <span class="dc-sub">Platform-wide orders</span>
+          </div>
+          <div class="dash-card">
+            <small>Registered Travellers</small>
+            <b>8,934</b>
+            <span class="dc-sub">+18 new this week</span>
+          </div>
+          <div class="dash-card">
+            <small>Active Partners</small>
+            <b>42</b>
+            <span class="dc-sub">Vendors & operators</span>
+          </div>
+          <div class="dash-card">
+            <small>Pending Partner Approvals</small>
+            <b style="color:var(--wrn)">${partnerApps.filter(a=>a.status==='pending').length}</b>
+            <span class="dc-sub">Requires admin review</span>
+          </div>
+          <div class="dash-card">
+            <small>Est. Platform GMV</small>
+            <b style="color:var(--am)">${fm(totalRev)}</b>
+            <span class="dc-sub">Demo metric</span>
+          </div>
+        </div>
+
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Recent Bookings</h3>
+            <button class="btn sm sec-btn" onclick="$('#adminNav button[data-tab=bookings]').click()">View All Bookings</button>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Service / Trip</th>
+                  <th>Traveller</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${TR.slice(0, 4).map(t => `
+                  <tr>
+                    <td><strong>${t.id}</strong></td>
+                    <td>${t.title}</td>
+                    <td>${t.customerName || 'Alex Morgan'}<br><small style="color:var(--mut)">${t.customerEmail || 'alex@example.com'}</small></td>
+                    <td><b>${t.amt}</b></td>
+                    <td><span class="badge ${t.status.includes('Confirmed')?'suc':'can'}">${t.status}</span></td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Pending Partner Applications</h3>
+            <button class="btn sm sec-btn" onclick="$('#adminNav button[data-tab=partners]').click()">Review Applications</button>
+          </div>
+          ${partnerApps.filter(a=>a.status==='pending').length ? `
+            <div class="table-wrap">
+              <table class="dash-table">
+                <thead>
+                  <tr><th>Company</th><th>Contact</th><th>Category</th><th>Location</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                  ${partnerApps.filter(a=>a.status==='pending').map(a => `
+                    <tr>
+                      <td><strong>${a.company}</strong></td>
+                      <td>${a.contact}<br><small style="color:var(--mut)">${a.email}</small></td>
+                      <td>${a.type}</td>
+                      <td>${a.location}</td>
+                      <td>
+                        <button class="btn xs p" data-admin-approve-partner="${a.id}">Approve</button>
+                        <button class="btn xs dang" data-admin-reject-partner="${a.id}">Reject</button>
+                      </td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>` : '<p style="color:var(--mut);margin:0">No pending partner applications.</p>'}
+        </div>`;
+      }
+
+      if (tabName === 'bookings') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Platform Bookings</h3>
+            <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+              <input type="text" id="adminBookingSearch" placeholder="Search by ID, name or service..." style="max-width:18rem;padding:.4rem .8rem;font-size:.85rem">
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table" id="adminBookingsTable">
+              <thead>
+                <tr>
+                  <th>Booking Reference</th>
+                  <th>Category</th>
+                  <th>Service Title</th>
+                  <th>Customer</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${TR.map(t => `
+                  <tr>
+                    <td><strong>${t.id}</strong></td>
+                    <td><span class="badge inf">${t.type}</span></td>
+                    <td>${t.title}</td>
+                    <td>${t.customerName || 'Alex Morgan'}</td>
+                    <td>${t.date}</td>
+                    <td><b>${t.amt}</b></td>
+                    <td><span class="badge ${t.status.includes('Confirmed')?'suc':'can'}">${t.status}</span></td>
+                    <td>
+                      ${!t.status.includes('Cancelled') ? `<button class="btn xs dang" data-admin-cancel-booking="${t.id}">Cancel</button>` : '<small style="color:var(--mut)">Archived</small>'}
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'users') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Registered Platform Users</h3>
+            <span class="sub" style="margin:0">${usersDb.length} verified accounts</span>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>System Role</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${usersDb.map(u => `
+                  <tr>
+                    <td><code>${u.id}</code></td>
+                    <td><strong>${u.name}</strong></td>
+                    <td>${u.email}</td>
+                    <td><span class="badge ${u.role==='admin'?'wrn':u.role==='partner'?'inf':'suc'}">${u.role}</span></td>
+                    <td><span class="badge suc">Active</span></td>
+                    <td>${u.createdAt}</td>
+                    <td>
+                      ${u.role !== 'admin' ? `<button class="btn xs sec-btn" onclick="toast('Password reset email simulated for ${u.email}')">Reset Pass</button>` : '<small style="color:var(--am)">Superadmin</small>'}
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'partners') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Pending Partner Applications</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Application ID</th><th>Business Name</th><th>Contact Person</th><th>Category</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                ${partnerApps.map(a => `
+                  <tr>
+                    <td><code>${a.id}</code></td>
+                    <td><strong>${a.company}</strong></td>
+                    <td>${a.contact} (${a.email})</td>
+                    <td>${a.type}</td>
+                    <td><span class="badge ${a.status==='approved'?'suc':a.status==='pending'?'pen':'can'}">${a.status}</span></td>
+                    <td>
+                      ${a.status === 'pending' ? `
+                        <button class="btn xs p" data-admin-approve-partner="${a.id}">Approve</button>
+                        <button class="btn xs dang" data-admin-reject-partner="${a.id}">Reject</button>
+                      ` : `<small style="color:var(--mut)">Processed</small>`}
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Active Vendor Partnerships</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Company</th><th>Lead Contact</th><th>Services Listed</th><th>Status</th><th>Contract</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Grand Luxe Hospitality Ltd.</strong></td>
+                  <td>Elena Rostova (vendor@tripora.com)</td>
+                  <td>2 properties</td>
+                  <td><span class="badge suc">Verified Partner</span></td>
+                  <td><button class="btn xs sec-btn" onclick="toast('Partner agreement view opened')">Agreement</button></td>
+                </tr>
+                <tr>
+                  <td><strong>Santorini Catamaran Cruises Co.</strong></td>
+                  <td>Nikos P. (partner2@example.com)</td>
+                  <td>1 activity</td>
+                  <td><span class="badge suc">Verified Partner</span></td>
+                  <td><button class="btn xs sec-btn" onclick="toast('Partner agreement view opened')">Agreement</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'destinations') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Featured Destinations</h3>
+            <button class="btn sm p" id="btnAdminAddDest">+ Add New Destination</button>
+          </div>
+          
+          <div id="adminAddDestForm" style="display:none;background:var(--pn-light);padding:1.2rem;border-radius:1rem;margin-bottom:1rem;border:1px solid var(--ln)">
+            <h4 style="margin-bottom:.8rem;color:var(--am)">New Destination Entry</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:.8rem">
+              <label>Destination Name<input id="ndName" placeholder="e.g. Queenstown"></label>
+              <label>Country<input id="ndCountry" placeholder="e.g. New Zealand"></label>
+              <label>Best Season<input id="ndSeason" placeholder="e.g. Dec–Feb"></label>
+              <label>Sample Base Price (USD)<input id="ndPrice" type="number" value="890"></label>
+            </div>
+            <label style="margin-top:.8rem">Short Description<textarea id="ndDesc" rows="2" placeholder="Fjord views, alpine lakes and adventure sports..."></textarea></label>
+            <div style="display:flex;gap:.6rem;margin-top:.8rem">
+              <button class="btn sm p" id="btnAdminSaveDest">Publish Destination</button>
+              <button class="btn sm sec-btn" onclick="$('#adminAddDestForm').style.display='none'">Cancel</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Destination</th><th>Country</th><th>Best Season</th><th>Base Price</th><th>Description</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                ${ALL_DEST.map((d, i) => `
+                  <tr>
+                    <td><strong>${d.n}</strong></td>
+                    <td>${d.c}</td>
+                    <td>${d.s}</td>
+                    <td><b>${fmt(d.u)}</b></td>
+                    <td><small style="color:var(--mut)">${d.d}</small></td>
+                    <td>
+                      <button class="btn xs dang" data-admin-del-dest="${i}">Remove</button>
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'services') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Hotel & Resort Listings</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Title</th><th>Location</th><th>Nightly Rate</th><th>Rating</th><th>Partner</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                ${hotelListings.map((h, i) => `
+                  <tr>
+                    <td><strong>${h.title}</strong></td>
+                    <td>${h.loc}</td>
+                    <td><b>${fmt(h.rate)}</b></td>
+                    <td>★ ${h.rating}</td>
+                    <td><small>${h.partner || 'Direct'}</small></td>
+                    <td><span class="badge ${h.status==='active'?'suc':'can'}">${h.status}</span></td>
+                    <td>
+                      <button class="btn xs sec-btn" data-admin-toggle-service="${i}">${h.status==='active'?'Deactivate':'Activate'}</button>
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'support') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Concierge Tickets & Inquiries</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Ticket ID</th><th>Customer</th><th>Subject</th><th>Priority</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                ${supportTickets.map(s => `
+                  <tr>
+                    <td><code>${s.id}</code></td>
+                    <td><strong>${s.customer}</strong><br><small style="color:var(--mut)">${s.email}</small></td>
+                    <td>${s.subject}</td>
+                    <td><span class="badge ${s.priority==='High'?'can':'inf'}">${s.priority}</span></td>
+                    <td><span class="badge ${s.status==='Resolved'?'suc':'pen'}">${s.status}</span></td>
+                    <td>
+                      ${s.status === 'Open' ? `<button class="btn xs p" data-admin-resolve-ticket="${s.id}">Mark Resolved</button>` : `<small style="color:var(--mut)">Closed</small>`}
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'settings') {
+        return `
+        <div class="dash-section" style="max-width:44rem">
+          <div class="dash-section-header">
+            <h3>Global Platform Configuration</h3>
+          </div>
+          <form id="adminSettingsForm" style="display:grid;gap:1rem">
+            <label>Platform Commission (%)
+              <input type="number" id="cfgComm" min="0" max="40" value="${platformSettings.commission}">
+            </label>
+            <label>Emergency Concierge Phone
+              <input type="text" id="cfgPhone" value="${platformSettings.conciergePhone}">
+            </label>
+            <label>Support Desk Email
+              <input type="email" id="cfgEmail" value="${platformSettings.supportEmail}">
+            </label>
+            <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer">
+              <input type="checkbox" id="cfgMaint" ${platformSettings.maintenance?'checked':''} style="width:auto">
+              <span>Enable Platform Maintenance Mode</span>
+            </label>
+            <div style="margin-top:.8rem">
+              <button class="btn p" type="submit">Save Platform Settings</button>
+            </div>
+          </form>
+        </div>`;
+      }
+
+      return '<div class="empty"><p>Section not available</p></div>';
+    },
+
+    /* ==========================================================
+       DEDICATED PARTNER / VENDOR PORTAL
+       ========================================================== */
+    partnerPanel(){
+      if (!usr || usr.role !== 'partner') {
+        return hd('Access Denied', 'Partner authorization required') + `
+        <div class="empty">
+          <p style="color:var(--dang);font-size:1.1rem">⚠️ You must be signed in with a registered Partner / Vendor account to view this portal.</p>
+          <button class="btn p" data-v="home">Return Home</button>
+        </div>`;
+      }
+
+      const partnerHotels = hotelListings.filter(h => h.partner === usr.email);
+      const partnerBookings = TR.filter(t => t.partnerEmail === usr.email);
+      const partnerEarnings = Math.round(partnerBookings.reduce((acc, t) => {
+        const num = +String(t.amt).replace(/[^0-9]/g, '') || 300;
+        return acc + num * 0.88;
+      }, 12450) * cu[2]);
+
+      return `
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem">
+        <div>
+          <span class="role-partner badge" style="margin-bottom:.4rem">Partner Management</span>
+          <h1>Partner & Vendor Hub</h1>
+          <p class="sub" style="margin-bottom:0">Business: <strong>${usr.company || 'Grand Luxe Hospitality'}</strong> · Representative: ${usr.name}</p>
+        </div>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn sm p" data-partner-action="newListing">+ Add New Listing</button>
+          <button class="btn sm dang" data-partner-action="logout">Log out</button>
+        </div>
+      </div>
+
+      <div class="dash-shell">
+        <aside class="dash-side">
+          <div class="dash-profile">
+            <div class="dash-avatar" style="background:linear-gradient(135deg,var(--ac),#3b2f6b);color:#fff">GL</div>
+            <div>
+              <strong style="display:block;font-size:.95rem">${usr.company ? usr.company.slice(0, 18) + '...' : usr.name}</strong>
+              <small style="color:var(--ac);font-weight:600">Verified Partner ✓</small>
+            </div>
+          </div>
+          <nav class="dash-nav" id="partnerNav">
+            <button class="${partnerActiveTab==='overview'?'act-ac':''}" data-ptab="overview">📊 Dashboard Overview</button>
+            <button class="${partnerActiveTab==='listings'?'act-ac':''}" data-ptab="listings">🏨 My Listings (${partnerHotels.length})</button>
+            <button class="${partnerActiveTab==='addListing'?'act-ac':''}" data-ptab="addListing">➕ Add New Listing</button>
+            <button class="${partnerActiveTab==='bookings'?'act-ac':''}" data-ptab="bookings">📅 Manage Bookings (${partnerBookings.length})</button>
+            <button class="${partnerActiveTab==='pricing'?'act-ac':''}" data-ptab="pricing">🏷️ Rates & Pricing</button>
+            <button class="${partnerActiveTab==='earnings'?'act-ac':''}" data-ptab="earnings">💰 Earnings & Payouts</button>
+            <button class="${partnerActiveTab==='reviews'?'act-ac':''}" data-ptab="reviews">⭐ Guest Reviews</button>
+            <button class="${partnerActiveTab==='profile'?'act-ac':''}" data-ptab="profile">🏢 Business Profile</button>
+            <button data-ptab="logout" style="color:var(--dang);margin-top:.8rem;border-top:1px solid var(--ln);padding-top:.8rem">🚪 Exit to Website</button>
+          </nav>
+        </aside>
+
+        <section class="dash-content" id="partnerTabContent">
+          ${V._renderPartnerTab(partnerActiveTab, partnerHotels, partnerBookings, partnerEarnings)}
+        </section>
+      </div>`;
+    },
+
+    _renderPartnerTab(tabName, partnerHotels, partnerBookings, partnerEarnings){
+      if (tabName === 'overview') {
+        return `
+        <div class="dash-metrics">
+          <div class="dash-card">
+            <small>Active Listings</small>
+            <b style="color:var(--ac)">${partnerHotels.length}</b>
+            <span class="dc-sub">Live on Tripora</span>
+          </div>
+          <div class="dash-card">
+            <small>Total Guest Bookings</small>
+            <b>${partnerBookings.length + 14}</b>
+            <span class="dc-sub">All-time reservations</span>
+          </div>
+          <div class="dash-card">
+            <small>Pending Inquiries</small>
+            <b style="color:var(--wrn)">2</b>
+            <span class="dc-sub">Guest confirmation needed</span>
+          </div>
+          <div class="dash-card">
+            <small>Net Partner Payout</small>
+            <b style="color:var(--am)">${fm(partnerEarnings)}</b>
+            <span class="dc-sub">Ready for withdrawal</span>
+          </div>
+        </div>
+
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Recent Guest Reservations</h3>
+            <button class="btn sm sec-btn" onclick="$('#partnerNav button[data-ptab=bookings]').click()">All Bookings</button>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Ref Number</th><th>Guest Name</th><th>Service</th><th>Status</th><th>Gross Amount</th></tr>
+              </thead>
+              <tbody>
+                ${partnerBookings.map(t => `
+                  <tr>
+                    <td><strong>${t.id}</strong></td>
+                    <td>${t.customerName || 'Alex Morgan'}</td>
+                    <td>${t.title}</td>
+                    <td><span class="badge ${t.status.includes('Confirmed')?'suc':'pen'}">${t.status}</span></td>
+                    <td><b>${t.amt}</b></td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>My Active Properties</h3>
+            <button class="btn sm p" onclick="$('#partnerNav button[data-ptab=addListing]').click()">+ Add Property</button>
+          </div>
+          <div class="list">
+            ${partnerHotels.map(h => `
+              <div class="row">
+                <div>
+                  <strong>${h.title}</strong>
+                  <small>${h.loc} · ★ ${h.rating}</small>
+                </div>
+                <div class="pr">
+                  <b>${fmt(h.rate)} <small style="display:inline;font-size:.8rem;color:var(--mut)">/ night</small></b>
+                  <button class="btn xs sec-btn" onclick="$('#partnerNav button[data-ptab=pricing]').click()">Adjust Rates</button>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'listings') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Property & Tour Inventories</h3>
+            <button class="btn sm p" onclick="$('#partnerNav button[data-ptab=addListing]').click()">+ Add Listing</button>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Property Title</th><th>Destination</th><th>Nightly Rate</th><th>Rating</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                ${partnerHotels.map(h => `
+                  <tr>
+                    <td><strong>${h.title}</strong></td>
+                    <td>${h.loc}</td>
+                    <td><b>${fmt(h.rate)}</b></td>
+                    <td>★ ${h.rating}</td>
+                    <td><span class="badge suc">${h.status}</span></td>
+                    <td>
+                      <button class="btn xs sec-btn" data-partner-edit-listing="${h.id}">Edit</button>
+                      <button class="btn xs dang" data-partner-del-listing="${h.id}">Delete</button>
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'addListing') {
+        return `
+        <div class="dash-section" style="max-width:48rem">
+          <div class="dash-section-header">
+            <h3>Publish New Travel Service</h3>
+            <p class="sub" style="margin:0">Add a new hotel, villa, or custom tour experience to the Tripora catalogue.</p>
+          </div>
+          <form id="partnerAddListingForm" style="display:grid;gap:1rem;margin-top:.6rem">
+            <label>Service Title
+              <input id="nlTitle" required placeholder="e.g. Aegean Blue Caldera Villa">
+            </label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:1rem">
+              <label>Category
+                <select id="nlCat">
+                  <option value="Hotel">Hotel / Luxury Stay</option>
+                  <option value="Tour">Guided Tour Experience</option>
+                  <option value="Activity">Adventure / Water Activity</option>
+                </select>
+              </label>
+              <label>Location / City
+                <input id="nlLoc" required placeholder="e.g. Oia, Santorini, Greece">
+              </label>
+              <label>Base Rate per Night/Seat (USD)
+                <input id="nlRate" type="number" required value="280">
+              </label>
+            </div>
+            <label>Amenities / Tags (comma separated)
+              <input id="nlTags" placeholder="Infinity Pool · Breakfast included · Sunset Terrace">
+            </label>
+            <label>Property Description
+              <textarea id="nlDesc" rows="3" required placeholder="Describe what makes this accommodation or experience special..."></textarea>
+            </label>
+            <div style="display:flex;gap:.8rem;margin-top:.6rem">
+              <button class="btn p" type="submit">Publish Listing to Tripora</button>
+              <button class="btn sec-btn" type="button" onclick="$('#partnerNav button[data-ptab=listings]').click()">Cancel</button>
+            </div>
+          </form>
+        </div>`;
+      }
+
+      if (tabName === 'bookings') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Guest Bookings for Your Properties</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Booking ID</th><th>Service</th><th>Guest</th><th>Date</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                ${partnerBookings.map(t => `
+                  <tr>
+                    <td><strong>${t.id}</strong></td>
+                    <td>${t.title}</td>
+                    <td>${t.customerName || 'Alex Morgan'}<br><small style="color:var(--mut)">${t.customerEmail || 'alex@example.com'}</small></td>
+                    <td>${t.date}</td>
+                    <td><b>${t.amt}</b></td>
+                    <td><span class="badge ${t.status.includes('Confirmed')?'suc':'can'}">${t.status}</span></td>
+                    <td>
+                      ${!t.status.includes('Cancelled') ? `
+                        <button class="btn xs sec-btn" onclick="toast('Guest checked-in successfully')">Check In</button>
+                        <button class="btn xs dang" data-partner-cancel-booking="${t.id}">Cancel</button>
+                      ` : '<small style="color:var(--mut)">Cancelled</small>'}
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'pricing') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Seasonal Rates & Pricing Rules</h3>
+          </div>
+          <p class="sub" style="margin:0">Adjust your nightly base rates. Changes apply immediately across search results.</p>
+          <div class="table-wrap" style="margin-top:.8rem">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Property</th><th>Current Rate (USD)</th><th>New Rate</th><th>Instant Discount</th><th>Save</th></tr>
+              </thead>
+              <tbody>
+                ${partnerHotels.map(h => `
+                  <tr>
+                    <td><strong>${h.title}</strong></td>
+                    <td>${fmt(h.rate)}</td>
+                    <td><input type="number" value="${h.rate}" style="max-width:6rem;padding:.3rem .5rem;font-size:.85rem" id="rateInput_${h.id}"></td>
+                    <td>
+                      <select style="padding:.3rem .5rem;font-size:.85rem">
+                        <option>Standard Rate</option>
+                        <option>10% Early Bird</option>
+                        <option>15% Last Minute</option>
+                      </select>
+                    </td>
+                    <td><button class="btn xs p" onclick="toast('Rate updated for ${h.title}')">Save Rate</button></td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'earnings') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Earnings & Payout Requests</h3>
+            <button class="btn sm p" onclick="toast('Payout transfer of ${fm(partnerEarnings)} initiated to registered account')">Request Bank Payout</button>
+          </div>
+          <div class="dash-metrics" style="margin:1rem 0">
+            <div class="dash-card">
+              <small>Available Balance</small>
+              <b style="color:var(--suc)">${fm(partnerEarnings)}</b>
+            </div>
+            <div class="dash-card">
+              <small>Last Payout</small>
+              <b>${fm(Math.round(8400 * cu[2]))}</b>
+              <span class="dc-sub">Transferred 2026-03-31</span>
+            </div>
+            <div class="dash-card">
+              <small>Commission Rate</small>
+              <b>12%</b>
+              <span class="dc-sub">Tripora verified fee</span>
+            </div>
+          </div>
+          <h4>Recent Transfer Log</h4>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead><tr><th>Transfer Ref</th><th>Date</th><th>Amount</th><th>Destination Account</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><code>TRF-90214</code></td><td>2026-03-31</td><td>${fm(Math.round(8400*cu[2]))}</td><td>•••• 4921 (Chase)</td><td><span class="badge suc">Completed</span></td></tr>
+                <tr><td><code>TRF-84192</code></td><td>2026-02-28</td><td>${fm(Math.round(6200*cu[2]))}</td><td>•••• 4921 (Chase)</td><td><span class="badge suc">Completed</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'reviews') {
+        return `
+        <div class="dash-section">
+          <div class="dash-section-header">
+            <h3>Recent Guest Reviews</h3>
+          </div>
+          <div class="list">
+            <div class="row">
+              <div>
+                <strong>★ 5.0 · "Unforgettable Caldera Sunset"</strong>
+                <small>Guest: David L. · Stayed at Grand Luxe Oia Suites (Apr 2026)</small>
+                <p style="margin:.3rem 0 0;color:var(--mut);font-size:.9rem">"The private plunge pool overlooking the volcanic caldera was the highlight of our trip. Exceptional service from Elena's team."</p>
+              </div>
+              <div class="pr">
+                <button class="btn xs sec-btn" onclick="toast('Guest response editor opened')">Reply to Guest</button>
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <strong>★ 4.8 · "Peaceful Zen retreat in bamboo woods"</strong>
+                <small>Guest: Chloe W. · Stayed at Roku Zen Resort (Mar 2026)</small>
+                <p style="margin:.3rem 0 0;color:var(--mut);font-size:.9rem">"Traditional onsen bath was sublime. Will definitely visit again when returning to Kyoto."</p>
+              </div>
+              <div class="pr">
+                <button class="btn xs sec-btn" onclick="toast('Guest response editor opened')">Reply to Guest</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      if (tabName === 'profile') {
+        return `
+        <div class="dash-section" style="max-width:44rem">
+          <div class="dash-section-header">
+            <h3>Business Registration Details</h3>
+          </div>
+          <form id="partnerProfileForm" style="display:grid;gap:1rem">
+            <label>Business Name
+              <input id="ppComp" value="${usr.company || 'Grand Luxe Hospitality Ltd.'}">
+            </label>
+            <label>Authorized Representative
+              <input id="ppRep" value="${usr.name}">
+            </label>
+            <label>Official Contact Email
+              <input id="ppEmail" type="email" value="${usr.email}" readonly style="opacity:.8">
+            </label>
+            <label>Direct Telephone
+              <input id="ppPhone" value="${usr.phone || '+1 (800) 449-LUXE'}">
+            </label>
+            <div>
+              <button class="btn p" type="submit">Update Business Profile</button>
+            </div>
+          </form>
+        </div>`;
+      }
+
+      return '<div class="empty"><p>Section not available</p></div>';
+    },
+
+    /* ==========================================================
+       CHECKOUT FLOW
+       ========================================================== */
+    checkout(){
+      if (!CK) return hd('Checkout', 'Nothing to book yet') + '<div class="empty"><button class="btn p" data-v="home">Return home</button></div>';
+      const c = CK, base = Math.round(c.u * cu[2]), tax = Math.round(base * .1), st = ['Review', 'Traveller details', 'Demo payment'];
+      let h = hd('Secure demo checkout', 'Complete your booking') + `<p class="k">${c.ref?'Confirmed':`Step ${c.s} of 3: ${st[c.s-1]}`}</p><div class="ck">`;
+      if (c.ref) return h + `<h2>Booking confirmed!</h2><p>Your reservation reference is <strong>${c.ref}</strong>. This is a demo: no real payment was taken and your booking is saved in your account.</p><div><button class="btn p" data-v="trips">View my trips</button></div></div>`;
+      
+      if (c.s === 1) {
+        h += `
+        <div class="sum">
+          <div><span>${c.type}</span></div>
+          <div><strong>${c.ti}</strong><strong>${fm(base)}</strong></div>
+        </div>
+        <div>
+          <button class="btn p" data-ck="2">Continue to traveller details</button>
+        </div>`;
+      } else if (c.s === 2) {
+        h += `
+        <label>Full name
+          <input id="ckn" value="${esc(c.name)}" autocomplete="name" placeholder="e.g. Alex Morgan">
+        </label>
+        <label>Email address
+          <input id="cke" type="email" value="${esc(c.email)}" autocomplete="email" placeholder="e.g. alex@example.com">
+        </label>
+        ${c.err?`<p class="er" role="alert">${c.err}</p>`:''}
+        <div class="cta">
+          <button class="btn sec-btn" data-ck="1">Back</button>
+          <button class="btn p" data-ck="3">Continue to payment</button>
+        </div>`;
+      } else if (c.s === 3) {
+        h += `
+        <div class="sum">
+          <div><span>Base amount</span><span>${fm(base)}</span></div>
+          <div><span>Taxes and fees (10%, sample)</span><span>${fm(tax)}</span></div>
+          <div class="t"><span>Total</span><span>${fm(base+tax)}</span></div>
+        </div>
+        <p class="demo"><span class="demo-tag">Demo Mode</span> No credit card details are collected and nothing is charged.</p>
+        <div class="cta">
+          <button class="btn sec-btn" data-ck="2">Back</button>
+          <button class="btn p" data-ck="pay">Confirm booking</button>
+        </div>`;
+      }
+      return h + '</div>';
+    }
+  };
+
+  /* ---------- APP NAVIGATION & AUTH STATE UPDATER ---------- */
+  const updateNavAuth = () => {
+    const authNavWrap = $('#authNavWrap');
+    if (!authNavWrap) return;
+
+    if (usr) {
+      let roleClass = 'role-customer', roleText = 'Customer';
+      if (usr.role === 'admin') { roleClass = 'role-admin'; roleText = 'Admin'; }
+      else if (usr.role === 'partner') { roleClass = 'role-partner'; roleText = 'Partner'; }
+
+      authNavWrap.innerHTML = `
+        <div id="userChip">
+          <span>${usr.name.split(' ')[0]}</span>
+          <span id="userRoleBadge" class="${roleClass}">${roleText}</span>
+        </div>
+        <button class="ic" id="lg">Log out</button>`;
+
+      // Manage Portal Buttons in Navigation
+      const existingAdminBtn = $('#navAdminBtn');
+      if (usr.role === 'admin') {
+        if (!existingAdminBtn) {
+          const btn = document.createElement('button');
+          btn.id = 'navAdminBtn';
+          btn.innerHTML = `Admin Portal <span class="nav-badge">Admin</span>`;
+          btn.style.color = 'var(--am)';
+          btn.onclick = () => go('adminPanel');
+          $('#lk').appendChild(btn);
+        }
+      } else if (existingAdminBtn) {
+        existingAdminBtn.remove();
+      }
+
+      const existingPartnerBtn = $('#navPartnerBtn');
+      if (usr.role === 'partner') {
+        if (!existingPartnerBtn) {
+          const btn = document.createElement('button');
+          btn.id = 'navPartnerBtn';
+          btn.innerHTML = `Partner Portal <span class="nav-badge ac">Partner</span>`;
+          btn.style.color = 'var(--ac)';
+          btn.onclick = () => go('partnerPanel');
+          $('#lk').appendChild(btn);
+        }
+      } else if (existingPartnerBtn) {
+        existingPartnerBtn.remove();
+      }
+    } else {
+      authNavWrap.innerHTML = `<button class="ic" id="lg">Log in</button>`;
+      const ab = $('#navAdminBtn'); if (ab) ab.remove();
+      const pb = $('#navPartnerBtn'); if (pb) pb.remove();
+    }
+  };
+
+  const render = () => {
+    if (V[cv]) {
+      app.innerHTML = `<div class="wrap">${V[cv]()}</div>` + FOOT;
+    }
+  };
+
+  const go = v => {
+    // ROUTE GUARDS: Strict role protection
+    if (v === 'adminPanel') {
+      if (!usr) {
+        toast('Authentication Required: Please sign into the Administrator Portal.');
+        openAuthModal('admin');
+        return;
+      }
+      if (usr.role !== 'admin') {
+        toast('Access Denied: Your account does not have Administrator privileges.');
+        return;
+      }
+    }
+    if (v === 'partnerPanel') {
+      if (!usr) {
+        toast('Authentication Required: Please sign into the Partner Portal.');
+        openAuthModal('partner');
+        return;
+      }
+      if (usr.role !== 'partner') {
+        toast('Access Denied: Your account is not registered as a Partner.');
+        return;
+      }
+    }
+
+    cv = v;
+    const isHome = v === 'home';
+    home.hidden = !isHome;
+    app.hidden = isHome;
+    document.body.classList.toggle('inapp', !isHome);
+
+    $$('.lk [data-v]').forEach(b => b.toggleAttribute('aria-current', b.dataset.v === v));
+    lk.classList.remove('open');
+    mb.setAttribute('aria-expanded', 'false');
+
+    if (isHome) {
+      hearts();
+      sync();
+      setTimeout(() => window.ScrollTrigger && ScrollTrigger.refresh(), 50);
+    } else {
+      render();
+      const t = app.querySelector('h1');
+      if (t) { t.tabIndex = -1; t.focus({preventScroll: true}); }
+    }
+    L ? L.scrollTo(0, {immediate: true}) : scrollTo(0, 0);
+  };
+
+  const buy = s => {
+    const [ty, ti, u] = s.split('|');
+    CK = { type: ty, ti, u: +u, s: 1, name: usr ? usr.name : '', email: usr ? usr.email : '', err:'', ref: null };
+    go('checkout');
+  };
+
+  /* ---------- AUTHENTICATION MODAL LOGIC ---------- */
+  const au = $('#auth'), af = $('#af'), portalSelector = $('#portalSelector');
+  const lEmail = $('#lEmail'), lPass = $('#lPass'), formTitle = $('#formTitle'), formDesc = $('#formDesc');
+  const authError = $('#authError'), togglePass = $('#togglePass');
+  let selectedPortal = 'customer';
+
+  const openAuthModal = (targetPortal = null) => {
+    au.hidden = false;
+    authError.style.display = 'none';
+    if (targetPortal) {
+      choosePortal(targetPortal);
+    } else {
+      portalSelector.style.display = 'grid';
+      af.style.display = 'none';
+    }
+  };
+
+  const closeAuthModal = () => {
+    au.hidden = true;
+    af.style.display = 'none';
+    portalSelector.style.display = 'grid';
+    authError.style.display = 'none';
+    const lg = $('#lg');
+    if (lg) lg.focus();
+  };
+
+  const choosePortal = (type) => {
+    selectedPortal = type;
+    portalSelector.style.display = 'none';
+    af.style.display = 'grid';
+    authError.style.display = 'none';
+
+    if (type === 'admin') {
+      formTitle.textContent = 'Administrator Portal Login';
+      formTitle.style.color = 'var(--am)';
+      formDesc.textContent = 'Enter your administrator credentials to access platform governance and analytics.';
+      lEmail.value = 'admin@tripora.com';
+      lPass.value = 'admin123';
+    } else if (type === 'partner') {
+      formTitle.textContent = 'Partner / Vendor Portal Login';
+      formTitle.style.color = 'var(--ac)';
+      formDesc.textContent = 'Enter your vendor credentials to manage property listings, rates, and guest bookings.';
+      lEmail.value = 'vendor@tripora.com';
+      lPass.value = 'vendor123';
+    } else {
+      formTitle.textContent = 'Customer Sign In';
+      formTitle.style.color = 'var(--fg)';
+      formDesc.textContent = 'Sign in to access your booked trips, wishlist, and travel profiles.';
+      lEmail.value = 'alex@example.com';
+      lPass.value = 'secret123';
+    }
+    setTimeout(() => lEmail.focus(), 100);
+  };
+
+  // Portal Selector Button Clicks
+  $('#btnCust').onclick = () => choosePortal('customer');
+  $('#btnAdmin').onclick = () => choosePortal('admin');
+  $('#btnPartner').onclick = () => choosePortal('partner');
+
+  // Quick Test Fill Pills
+  $('#fillCustDemo').onclick = () => choosePortal('customer');
+  $('#fillAdminDemo').onclick = () => choosePortal('admin');
+  $('#fillPartnerDemo').onclick = () => choosePortal('partner');
+  $('#btnQuickFillCurrent').onclick = () => {
+    if (selectedPortal === 'admin') { lEmail.value = 'admin@tripora.com'; lPass.value = 'admin123'; }
+    else if (selectedPortal === 'partner') { lEmail.value = 'vendor@tripora.com'; lPass.value = 'vendor123'; }
+    else { lEmail.value = 'alex@example.com'; lPass.value = 'secret123'; }
+  };
+
+  $('#backAuth').onclick = () => {
+    af.style.display = 'none';
+    portalSelector.style.display = 'grid';
+    authError.style.display = 'none';
+  };
+
+  $('#closeAuth').onclick = closeAuthModal;
+  au.onclick = e => { if (e.target === au) closeAuthModal(); };
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !au.hidden) closeAuthModal(); });
+
+  togglePass.onclick = () => {
+    const isText = lPass.type === 'text';
+    lPass.type = isText ? 'password' : 'text';
+    togglePass.textContent = isText ? '👁' : '🙈';
+    togglePass.setAttribute('aria-label', isText ? 'Show password' : 'Hide password');
+  };
+
+  // FORM SUBMIT HANDLER WITH CREDENTIAL & ROLE VERIFICATION
+  af.onsubmit = e => {
+    e.preventDefault();
+    authError.style.display = 'none';
+
+    const email = lEmail.value.trim().toLowerCase();
+    const pass = lPass.value;
+
+    // Field Validation
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      authError.textContent = 'Please enter a valid email address (e.g. name@example.com).';
+      authError.style.display = 'block';
+      lEmail.focus();
+      return;
+    }
+    if (!pass || pass.length < 4) {
+      authError.textContent = 'Password must be at least 4 characters long.';
+      authError.style.display = 'block';
+      lPass.focus();
+      return;
+    }
+
+    // Loading State
+    const submitBtn = $('#submitAuth');
+    const authBtnText = $('#authBtnText');
+    submitBtn.disabled = true;
+    authBtnText.textContent = 'Verifying...';
+
+    setTimeout(() => {
+      submitBtn.disabled = false;
+      authBtnText.textContent = 'Sign In';
+
+      // Look up user in database
+      const foundUser = usersDb.find(u => u.email.toLowerCase() === email);
+
+      if (!foundUser || foundUser.pass !== pass) {
+        authError.textContent = 'Invalid email or password. Please verify your credentials and try again.';
+        authError.style.display = 'block';
+        return;
+      }
+
+      // STRICT ROLE VERIFICATION & CROSS-PORTAL PROTECTION
+      if (selectedPortal === 'admin') {
+        if (foundUser.role !== 'admin') {
+          authError.textContent = `Access Denied: Account '${email}' has ${foundUser.role.toUpperCase()} permissions and cannot access the Administrator Portal. Please use the ${foundUser.role === 'partner' ? 'Partner' : 'Customer'} login.`;
+          authError.style.display = 'block';
+          return;
+        }
+      } else if (selectedPortal === 'partner') {
+        if (foundUser.role !== 'partner') {
+          authError.textContent = `Access Denied: Account '${email}' is a ${foundUser.role.toUpperCase()} account and cannot access the Partner Portal.`;
+          authError.style.display = 'block';
+          return;
+        }
+      } else if (selectedPortal === 'customer') {
+        // Customer portal accepts customer accounts; if admin/partner signs in here, inform them or direct appropriately
+        if (foundUser.role === 'admin') {
+          toast('Notice: Administrator logged in via Customer area.');
+        } else if (foundUser.role === 'partner') {
+          toast('Notice: Partner logged in via Customer area.');
+        }
+      }
+
+      // Successful Authentication
+      usr = {
+        id: foundUser.id,
+        email: foundUser.email,
+        name: foundUser.name,
+        role: foundUser.role,
+        company: foundUser.company || '',
+        phone: foundUser.phone || ''
+      };
+      sv('trp.user_session', usr);
+      updateNavAuth();
+      closeAuthModal();
+
+      if (foundUser.role === 'admin') {
+        toast(`Signed in as Administrator: ${foundUser.name}`);
+        go('adminPanel');
+      } else if (foundUser.role === 'partner') {
+        toast(`Signed in as Partner: ${foundUser.name} (${foundUser.company || 'Partner Hub'})`);
+        go('partnerPanel');
+      } else {
+        toast(`Welcome back, ${foundUser.name}!`);
+        if (cv === 'adminPanel' || cv === 'partnerPanel') go('home');
+        else if (cv !== 'home') render();
+      }
+    }, 450);
+  };
+
+  /* ---------- GLOBAL CLICK & ACTION DELEGATION ---------- */
+  document.addEventListener('click', e => {
+    // Nav Log in / Log out button
+    if (e.target.closest('#lg')) {
+      if (usr) {
+        showConfirm('Sign Out', 'Are you sure you want to log out of your Tripora account?', () => {
+          usr = null;
+          sv('trp.user_session', null);
+          updateNavAuth();
+          toast('Logged out successfully. Active session cleared.');
+          if (cv === 'adminPanel' || cv === 'partnerPanel') go('home');
+          else if (cv !== 'home') render();
+        });
+      } else {
+        openAuthModal();
+      }
+      return;
+    }
+
+    // Top anchor links when in app
+    const a = e.target.closest('a[href^="#"]');
+    if (a && cv !== 'home') {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const h = a.getAttribute('href');
+      go('home');
+      setTimeout(() => h.length > 1 && goTo(h), 150);
+      return;
+    }
+
+    // Nav service tabs
+    const b = e.target.closest('nav [data-v]');
+    if (b) {
+      go(b.dataset.v);
+      return;
+    }
+  }, true);
+
+  // APP CONTAINER INTERACTIONS
+  app.addEventListener('click', e => {
+    const t = e.target.closest('[data-buy],[data-v],[data-ck],[data-fa],[data-wl],[data-chat],[data-tab],[data-ptab],[data-admin-action],[data-partner-action],[data-admin-del-dest],[data-admin-toggle-service],[data-admin-approve-partner],[data-admin-reject-partner],[data-admin-cancel-booking],[data-admin-resolve-ticket],[data-partner-del-listing],[data-partner-cancel-booking]');
+    if (!t) return;
+    const d = t.dataset;
+
+    if (d.buy) { buy(d.buy); return; }
+    if (d.v) { go(d.v); return; }
+    if (d.fa !== undefined && t.tagName === 'BUTTON') { fa = 'All'; render(); return; }
+    if (d.wl) { tog(d.wl); render(); return; }
+    if (d.chat !== undefined) {
+      toast('Connecting you to live concierge ticket service...');
+      const ticketId = 'TCK-' + Math.floor(100 + Math.random() * 900);
+      supportTickets.unshift({ id: ticketId, customer: usr ? usr.name : 'Guest Traveller', email: usr ? usr.email : 'guest@tripora.com', subject: 'Live Concierge Chat Inquiry', priority: 'Medium', status: 'Open', date: new Date().toISOString().slice(0, 10) });
+      sv('trp.tickets', supportTickets);
+      toast(`Support ticket ${ticketId} created. Concierge agent assigned!`);
+      return;
+    }
+
+    // Admin Sidebar Tabs
+    if (d.tab) {
+      if (d.tab === 'logout') {
+        go('home');
+        return;
+      }
+      adminActiveTab = d.tab;
+      render();
+      return;
+    }
+
+    // Partner Sidebar Tabs
+    if (d.ptab) {
+      if (d.ptab === 'logout') {
+        go('home');
+        return;
+      }
+      partnerActiveTab = d.ptab;
+      render();
+      return;
+    }
+
+    // Admin Actions
+    if (d.adminAction === 'refresh') {
+      toast('Refreshing live metrics...');
+      render();
+      return;
+    }
+    if (d.adminAction === 'logout') {
+      usr = null;
+      sv('trp.user_session', null);
+      updateNavAuth();
+      toast('Signed out from Administrator Portal.');
+      go('home');
+      return;
+    }
+    if (d.adminApprovePartner) {
+      const appItem = partnerApps.find(a => a.id === d.adminApprovePartner);
+      if (appItem) {
+        appItem.status = 'approved';
+        sv('trp.partner_apps', partnerApps);
+        toast(`Approved partner application: ${appItem.company}`);
+        render();
+      }
+      return;
+    }
+    if (d.adminRejectPartner) {
+      showConfirm('Reject Partner Application', 'Are you sure you want to reject this partner application?', () => {
+        const appItem = partnerApps.find(a => a.id === d.adminRejectPartner);
+        if (appItem) {
+          appItem.status = 'rejected';
+          sv('trp.partner_apps', partnerApps);
+          toast(`Application rejected for: ${appItem.company}`);
+          render();
+        }
+      });
+      return;
+    }
+    if (d.adminCancelBooking) {
+      showConfirm('Cancel Booking', `Are you sure you want to cancel booking ${d.adminCancelBooking}?`, () => {
+        const bItem = TR.find(b => b.id === d.adminCancelBooking);
+        if (bItem) {
+          bItem.status = 'Cancelled (by Admin)';
+          sv('trp.trips', TR);
+          toast(`Booking ${d.adminCancelBooking} cancelled.`);
+          render();
+        }
+      });
+      return;
+    }
+    if (d.adminResolveTicket) {
+      const ticket = supportTickets.find(s => s.id === d.adminResolveTicket);
+      if (ticket) {
+        ticket.status = 'Resolved';
+        sv('trp.tickets', supportTickets);
+        toast(`Ticket ${ticket.id} marked as Resolved.`);
+        render();
+      }
+      return;
+    }
+    if (d.adminDelDest !== undefined) {
+      showConfirm('Delete Destination', 'Remove this destination from the platform listings?', () => {
+        ALL_DEST.splice(+d.adminDelDest, 1);
+        sv('trp.all_dest', ALL_DEST);
+        toast('Destination removed.');
+        render();
+      });
+      return;
+    }
+    if (d.adminToggleService !== undefined) {
+      const h = hotelListings[+d.adminToggleService];
+      if (h) {
+        h.status = h.status === 'active' ? 'inactive' : 'active';
+        sv('trp.hotels', hotelListings);
+        toast(`Listing status updated to ${h.status}`);
+        render();
+      }
+      return;
+    }
+
+    // Partner Actions
+    if (d.partnerAction === 'newListing') {
+      partnerActiveTab = 'addListing';
+      render();
+      return;
+    }
+    if (d.partnerAction === 'logout') {
+      usr = null;
+      sv('trp.user_session', null);
+      updateNavAuth();
+      toast('Signed out from Partner Portal.');
+      go('home');
+      return;
+    }
+    if (d.partnerDelListing) {
+      showConfirm('Delete Property Listing', 'Are you sure you want to permanently delete this listing?', () => {
+        hotelListings = hotelListings.filter(h => h.id !== d.partnerDelListing);
+        sv('trp.hotels', hotelListings);
+        toast('Listing deleted.');
+        render();
+      });
+      return;
+    }
+    if (d.partnerCancelBooking) {
+      showConfirm('Decline / Cancel Reservation', `Cancel guest reservation ${d.partnerCancelBooking}?`, () => {
+        const bItem = TR.find(b => b.id === d.partnerCancelBooking);
+        if (bItem) {
+          bItem.status = 'Cancelled (by Partner)';
+          sv('trp.trips', TR);
+          toast(`Reservation ${d.partnerCancelBooking} cancelled.`);
+          render();
+        }
+      });
+      return;
+    }
+
+    // Checkout Stepper Buttons
+    if (d.ck) {
+      const c = CK;
+      const ckn = $('#ckn'), cke = $('#cke');
+      if (ckn && cke) {
+        c.name = ckn.value.trim();
+        c.email = cke.value.trim();
+      }
+      if (d.ck === '3') {
+        c.err = c.name.length < 2 ? 'Please enter the traveller’s full name.' : !/^\S+@\S+\.\S+$/.test(c.email) ? 'Please enter a valid email address.' : '';
+        if (!c.err) c.s = 3;
+      } else if (d.ck === 'pay') {
+        const ref = 'TR-' + Math.floor(1e5 + Math.random() * 9e5);
+        const base = Math.round(c.u * cu[2]);
+        TR.unshift({
+          id: ref,
+          title: c.ti,
+          type: c.type,
+          status: 'Confirmed (demo)',
+          amt: fm(base + Math.round(base * .1)),
+          date: new Date().toISOString().slice(0, 10),
+          customerName: c.name,
+          customerEmail: c.email,
+          partnerEmail: 'vendor@tripora.com'
+        });
+        sv('trp.trips', TR);
+        c.ref = ref;
+        toast('Booking successfully confirmed (demo)');
+      } else {
+        c.s = +d.ck;
+        c.err = '';
+      }
+      render();
+    }
+  });
+
+  // APP FORM SUBMISSIONS (ADMIN & PARTNER FORMS)
+  app.addEventListener('submit', e => {
+    if (e.target.id === 'adminSettingsForm') {
+      e.preventDefault();
+      platformSettings.commission = +$('#cfgComm').value;
+      platformSettings.conciergePhone = $('#cfgPhone').value.trim();
+      platformSettings.supportEmail = $('#cfgEmail').value.trim();
+      platformSettings.maintenance = $('#cfgMaint').checked;
+      sv('trp.settings', platformSettings);
+      toast('Platform settings saved successfully.');
+      return;
+    }
+    if (e.target.id === 'partnerAddListingForm') {
+      e.preventDefault();
+      const title = $('#nlTitle').value.trim();
+      const loc = $('#nlLoc').value.trim();
+      const rate = +$('#nlRate').value || 250;
+      const tags = $('#nlTags').value.trim() || 'Verified Stay';
+      const desc = $('#nlDesc').value.trim();
+
+      const newListing = {
+        id: 'h-' + Date.now(),
+        title,
+        loc,
+        rate,
+        rating: 5.0,
+        tags,
+        desc,
+        a: '#ffb27a',
+        b: '#5b3f9a',
+        partner: usr ? usr.email : 'vendor@tripora.com',
+        status: 'active'
+      };
+      hotelListings.unshift(newListing);
+      sv('trp.hotels', hotelListings);
+      toast(`New listing "${title}" published live!`);
+      partnerActiveTab = 'listings';
+      render();
+      return;
+    }
+    if (e.target.id === 'partnerProfileForm') {
+      e.preventDefault();
+      if (usr) {
+        usr.company = $('#ppComp').value.trim();
+        usr.name = $('#ppRep').value.trim();
+        usr.phone = $('#ppPhone').value.trim();
+        sv('trp.user_session', usr);
+        const userInDb = usersDb.find(u => u.email === usr.email);
+        if (userInDb) {
+          userInDb.company = usr.company;
+          userInDb.name = usr.name;
+          userInDb.phone = usr.phone;
+          sv(USERS_KEY, usersDb);
+        }
+        updateNavAuth();
+        toast('Business profile updated successfully.');
+      }
+      return;
+    }
+  });
+
+  // In-app Filter & Sort Change Listeners
+  app.addEventListener('change', e => {
+    const t = e.target;
+    if (t.dataset.fa !== undefined && t.type === 'radio') { fa = t.dataset.fa; render(); }
+    if (t.id === 'fs') { fs = t.value; render(); }
+  });
+
+  // Admin dynamic Destination & Booking Search Handlers
+  app.addEventListener('input', e => {
+    if (e.target.id === 'adminBookingSearch') {
+      const q = e.target.value.toLowerCase();
+      $$('#adminBookingsTable tbody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+  });
+
+  // Admin Destination Add button
+  app.addEventListener('click', e => {
+    if (e.target.id === 'btnAdminAddDest') {
+      const form = $('#adminAddDestForm');
+      if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+    if (e.target.id === 'btnAdminSaveDest') {
+      const name = $('#ndName').value.trim();
+      const country = $('#ndCountry').value.trim();
+      const season = $('#ndSeason').value.trim();
+      const price = +$('#ndPrice').value || 900;
+      const desc = $('#ndDesc').value.trim() || 'A remarkable destination for travellers.';
+
+      if (!name || !country) {
+        toast('Please enter destination name and country.');
+        return;
+      }
+      const newD = { n: name, c: country, d: desc, s: season, u: price, a: '#ff9a6b', b: '#7a3f8f' };
+      Object.defineProperty(newD, 'p', { get: () => fmt(newD.u), configurable: true });
+      ALL_DEST.push(newD);
+      sv('trp.all_dest', ALL_DEST);
+      toast(`Destination ${name} published.`);
+      render();
+    }
+  });
+
+  // Currency Selector
+  $('#cur').value = cu[0];
+  $('#cur').addEventListener('change', e => {
+    cu = CUR.find(c => c[0] === e.target.value) || CUR[0];
+    sync();
+    if (cv !== 'home') render();
+    toast('Currency set to ' + cu[0]);
+  });
+
+  // Search Submit (from Hero Panel)
+  f.onsubmit = e => {
+    e.preventDefault();
+    const t = to.value.trim();
+    if (!t) {
+      res.innerHTML = '<p class="er" role="alert">Please enter a destination to search.</p>';
+      to.setAttribute('aria-invalid', 'true');
+      to.focus();
+      return;
+    }
+    to.removeAttribute('aria-invalid');
+    res.innerHTML = '';
+    const dtEl = $('#dt');
+    Q = { from: from.value.trim(), to: t, dt: dtEl ? dtEl.value : '', n: +nEl.textContent };
+    go(tab.toLowerCase());
+  };
+
+  // AI / Template Trip Planner
+  const TT = {
+    c: ['Arrival and old-town walk', 'Landmarks and museums', 'Local cooking class', 'Hidden neighbourhoods', 'Day trip to a nearby town', 'Markets and crafts', 'Farewell dinner'],
+    a: ['Arrival and orientation hike', 'Sunrise viewpoint', 'Water or trail activity', 'Rest day and local food', 'Guided full-day excursion', 'Cycling or kayaking', 'Farewell dinner outdoors'],
+    r: ['Arrival and unwind', 'Spa and slow breakfast', 'Beach or garden day', 'Scenic drive and lunch', 'Wellness session', 'Free day to explore', 'Farewell sunset dinner']
+  };
+  const TD = {
+    c: 'A balanced day of sights and food, with free time built in.',
+    a: 'An active day, with easier alternatives you can swap in.',
+    r: 'A slow day with plenty of rest and one highlight.'
+  };
+
+  $('#ai').onsubmit = e => {
+    e.preventDefault();
+    const o = $('#aiout'), fd = new FormData(e.target), d = fd.get('d').trim() || 'your destination', n = +fd.get('n'), s = fd.get('s'), est = Math.round(+fd.get('b') * n / 5);
+    o.innerHTML = '<div class="sk"></div><div class="sk"></div><div class="sk"></div>';
+    setTimeout(() => {
+      const ti = `${n}-day ${d} itinerary`;
+      o.innerHTML = `<p class="k">Curated Itinerary</p><h3 style="font-size:1.6rem">${ti}</h3><p class="demo"><span class="demo-tag">Template Itinerary</span> Verified travel structure.</p>${TT[s].slice(0, n).map((t, i) => `<div class="day"><small>Day ${i+1}</small><strong style="display:block">${t}</strong><p>${TD[s]}</p></div>`).join('')}<p style="margin:1rem 0 .6rem">Estimated budget: <strong>${fmt(est)}</strong></p>${B('Itinerary', ti, est)}`;
+    }, 800);
+  };
+
+  $('#aiout').addEventListener('click', e => {
+    const t = e.target.closest('[data-buy]');
+    if (t) buy(t.dataset.buy);
+  });
+
+  /* ===================================================================
+     NOVA AI CONVERSATIONAL ASSISTANT CONTROLLER
+     =================================================================== */
+  const novaTrigger = $('#novaTrigger');
+  const novaPanel = $('#novaPanel');
+  const novaCloseChat = $('#novaCloseChat');
+  const novaResetChat = $('#novaResetChat');
+  const novaMessages = $('#novaMessages');
+  const novaForm = $('#novaForm');
+  const novaInput = $('#novaInput');
+  const novaSendBtn = $('#novaSendBtn');
+
+  const INITIAL_SUGGESTION_CHIPS = [
+    '🌟 Find my perfect destination.',
+    '🗺️ Plan a 3-day trip.',
+    '💰 Suggest budget-friendly holidays.',
+    '🌅 Find romantic destinations.',
+    '🏔️ Recommend adventure trips.',
+    '👨‍👩‍👧 Help me plan a family vacation.'
+  ];
+
+  let novaHistory = ls('trp.nova_history', []);
+  let isNovaThinking = false;
+
+  // Initialize Welcome Message if history is empty
+  const initNovaWelcome = () => {
+    if (!novaHistory.length) {
+      const welcomeName = usr ? usr.name.split(' ')[0] : 'there';
+      novaHistory = [
+        {
+          role: 'assistant',
+          content: `Hi ${welcomeName}! I'm **Nova AI**, your personal travel assistant. 🌍\n\nWhere would you like to go next? Tell me your destination, budget, travel dates, or the kind of experience you're looking for, and I'll help you plan your journey.`,
+          chips: INITIAL_SUGGESTION_CHIPS,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ];
+      sv('trp.nova_history', novaHistory);
+    }
+  };
+
+  const renderNovaMessages = () => {
+    if (!novaMessages) return;
+    novaMessages.innerHTML = '';
+
+    novaHistory.forEach((msg, idx) => {
+      const isUser = msg.role === 'user';
+      const msgEl = document.createElement('div');
+      msgEl.className = `nova-msg ${isUser ? 'user' : 'assistant'}`;
+
+      // Format markdown bold & line breaks safely
+      let textHtml = esc(msg.content)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n/g, '<br>')
+        .replace(/• (.*?)(<br>|$)/g, '• $1$2');
+
+      let cardsHtml = '';
+      if (msg.cards && msg.cards.length) {
+        cardsHtml = msg.cards.map(c => {
+          let actionBtn = '';
+          if (c.action === 'explore_dest') {
+            actionBtn = `<button class="btn xs p" data-nova-dest="${esc(c.target || c.title)}">Explore Destination ↗</button>`;
+          } else if (c.action === 'view_hotels') {
+            actionBtn = `<button class="btn xs sec-btn" data-nova-view="hotels">Explore Hotels ↗</button>`;
+          } else if (c.action === 'view_holidays') {
+            actionBtn = `<button class="btn xs sec-btn" data-nova-view="holidays">View Package ↗</button>`;
+          } else if (c.action === 'view_flights') {
+            actionBtn = `<button class="btn xs sec-btn" data-nova-view="flights">Search Flights ↗</button>`;
+          }
+          return `
+            <div class="nova-card">
+              ${c.badge ? `<span class="nova-card-badge">${esc(c.badge)}</span>` : ''}
+              <strong>${esc(c.title)}</strong>
+              ${c.desc ? `<p>${esc(c.desc)}</p>` : ''}
+              ${c.rate ? `<small style="color:var(--am);font-weight:600">${esc(c.rate)}</small>` : ''}
+              <div class="nova-card-actions">
+                ${actionBtn}
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      // Check if message is an itinerary to show Copy button
+      let itineraryCopyBtn = '';
+      if (!isUser && msg.content && (msg.content.includes('Day 1') || msg.content.includes('Itinerary'))) {
+        itineraryCopyBtn = `<div style="margin-top:.4rem"><button class="btn xs sec-btn" data-nova-copy="${idx}">📋 Copy Itinerary</button></div>`;
+      }
+
+      // Follow-up suggestion chips
+      let chipsHtml = '';
+      if (msg.chips && msg.chips.length) {
+        chipsHtml = `<div class="nova-chips">${msg.chips.map(chip => `<button class="nova-chip" data-nova-chip="${esc(chip)}">${esc(chip)}</button>`).join('')}</div>`;
+      } else if (msg.followUps && msg.followUps.length) {
+        chipsHtml = `<div class="nova-chips">${msg.followUps.map(chip => `<button class="nova-chip" data-nova-chip="${esc(chip)}">${esc(chip)}</button>`).join('')}</div>`;
+      }
+
+      msgEl.innerHTML = `
+        <div class="nova-bubble">
+          <div>${textHtml}</div>
+          ${cardsHtml}
+          ${itineraryCopyBtn}
+        </div>
+        ${chipsHtml}
+        <small style="font-size:.7rem;color:var(--mut);align-self:${isUser ? 'flex-end' : 'flex-start'};margin:0 .3rem">${msg.time || ''}</small>
+      `;
+
+      novaMessages.appendChild(msgEl);
+    });
+
+    if (isNovaThinking) {
+      const typingEl = document.createElement('div');
+      typingEl.className = 'nova-typing';
+      typingEl.id = 'novaTypingIndicator';
+      typingEl.innerHTML = `
+        <span class="nova-dot"></span><span class="nova-dot"></span><span class="nova-dot"></span>
+        <span style="margin-left:.3rem">Nova is planning...</span>
+      `;
+      novaMessages.appendChild(typingEl);
+    }
+
+    novaMessages.scrollTop = novaMessages.scrollHeight;
+  };
+
+  const toggleNovaPanel = (forceState = null) => {
+    const isClosed = novaPanel.classList.contains('closed');
+    const nextOpen = forceState !== null ? forceState : isClosed;
+
+    if (nextOpen) {
+      novaPanel.classList.remove('closed');
+      novaTrigger.setAttribute('aria-expanded', 'true');
+      initNovaWelcome();
+      renderNovaMessages();
+      setTimeout(() => novaInput && novaInput.focus(), 250);
+    } else {
+      novaPanel.classList.add('closed');
+      novaTrigger.setAttribute('aria-expanded', 'false');
+      novaTrigger.focus();
+    }
+  };
+
+  const sendNovaMessage = async (textToSend = null) => {
+    const query = (textToSend || novaInput.value).trim();
+    if (!query || isNovaThinking) return;
+
+    novaInput.value = '';
+    novaSendBtn.disabled = true;
+
+    // Push user message
+    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    novaHistory.push({ role: 'user', content: query, time: nowTime });
+    sv('trp.nova_history', novaHistory);
+    isNovaThinking = true;
+    renderNovaMessages();
+
+    try {
+      const payload = {
+        messages: novaHistory.map(m => ({ role: m.role, content: m.content })),
+        context: {
+          userName: usr ? usr.name : '',
+          userRole: usr ? usr.role : '',
+          currency: cu ? cu[0] : 'USD'
+        }
+      };
+
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server returned HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      isNovaThinking = false;
+      novaHistory.push({
+        role: 'assistant',
+        content: data.content || "I'm ready to assist with your journey. Please tell me your preferred destination or travel style.",
+        cards: data.cards || [],
+        followUps: data.followUps || [],
+        mode: data.mode || 'smart-engine',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      sv('trp.nova_history', novaHistory);
+      renderNovaMessages();
+    } catch (err) {
+      console.warn('Nova API request error:', err);
+      isNovaThinking = false;
+      novaHistory.push({
+        role: 'assistant',
+        content: "⚠️ I encountered a brief connection issue communicating with the planning server. Please ensure the Tripora dev server is running on localhost, or click below to retry.",
+        followUps: ['Retry previous question', 'Plan a 3-day trip'],
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      renderNovaMessages();
+    } finally {
+      if (novaSendBtn) novaSendBtn.disabled = false;
+      setTimeout(() => novaInput && novaInput.focus(), 150);
+    }
+  };
+
+  // Event Listeners for Nova UI
+  if (novaTrigger) novaTrigger.onclick = () => toggleNovaPanel();
+  if (novaCloseChat) novaCloseChat.onclick = () => toggleNovaPanel(false);
+
+  if (novaResetChat) {
+    novaResetChat.onclick = () => {
+      showConfirm('New Conversation', 'Reset current chat with Nova AI and start fresh?', () => {
+        novaHistory = [];
+        sv('trp.nova_history', []);
+        initNovaWelcome();
+        renderNovaMessages();
+        toast('Nova conversation reset.');
+      });
+    };
+  }
+
+  if (novaInput) {
+    novaInput.addEventListener('input', () => {
+      if (novaSendBtn) novaSendBtn.disabled = !novaInput.value.trim();
+    });
+
+    novaInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (novaInput.value.trim()) sendNovaMessage();
+      }
+    });
+  }
+
+  if (novaForm) {
+    novaForm.onsubmit = e => {
+      e.preventDefault();
+      sendNovaMessage();
+    };
+  }
+
+  // Delegated Actions in Nova Messages (Chips, Cards, Copy Itinerary)
+  if (novaMessages) {
+    novaMessages.addEventListener('click', e => {
+      // Chips & Follow-ups
+      const chipBtn = e.target.closest('[data-nova-chip]');
+      if (chipBtn) {
+        sendNovaMessage(chipBtn.dataset.novaChip);
+        return;
+      }
+
+      // Destination Card Trigger
+      const destBtn = e.target.closest('[data-nova-dest]');
+      if (destBtn) {
+        const destName = destBtn.dataset.novaDest.split(',')[0].trim();
+        const toInput = $('#to');
+        if (toInput) toInput.value = destName;
+        toggleNovaPanel(false);
+        if (cv !== 'home') {
+          go('home');
+          setTimeout(() => goTo('#search'), 150);
+        } else {
+          goTo('#search');
+        }
+        toast(`Nova selected ${destName} for your search!`);
+        return;
+      }
+
+      // In-app View Trigger
+      const viewBtn = e.target.closest('[data-nova-view]');
+      if (viewBtn) {
+        const targetView = viewBtn.dataset.novaView;
+        toggleNovaPanel(false);
+        go(targetView);
+        toast(`Nova navigated you to ${targetView}.`);
+        return;
+      }
+
+      // Copy Itinerary Button
+      const copyBtn = e.target.closest('[data-nova-copy]');
+      if (copyBtn) {
+        const idx = +copyBtn.dataset.novaCopy;
+        const msg = novaHistory[idx];
+        if (msg && msg.content) {
+          navigator.clipboard.writeText(msg.content).then(() => {
+            toast('Itinerary copied to clipboard!');
+          }).catch(() => {
+            toast('Copied to clipboard');
+          });
+        }
+        return;
+      }
+    });
+  }
+
+  // Close with Escape key
+  addEventListener('keydown', e => {
+    if (e.key === 'Escape' && novaPanel && !novaPanel.classList.contains('closed')) {
+      toggleNovaPanel(false);
+    }
+  });
+
+  // Initial welcome message prep
+  initNovaWelcome();
+
+  // Initial Sync
+  badge();
+  sync();
+  updateNavAuth();
+})();
+</script>
+</body>
+</html>
